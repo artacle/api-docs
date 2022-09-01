@@ -1,0 +1,292 @@
+openapi: 3.0.0
+# servers: #[]
+#   - url: https://api.artacle.io/
+#     description: Artacle production endpoint. API Key is required
+info:
+  description: >-
+      OpenAPI 3.0 based swagger docs for [Artacle](https://artacle.io) Public API.
+      
+      
+      The API base URL is [https://api.artacle.io/v1/](https://api.artacle.io/v1/). An API Key is required to use the API. Contact us via [api@artacle.io](mailto:api@artacle.io) to request one. Please describe your project in short.
+      
+      
+      We ask you to indicate in your app that the data was obtained from Artacle, i.e. by providing links to the Artacle website.
+  version: "1.0.0"
+  title: Artacle Public API
+
+paths:
+# Collections List:
+  /collections:
+    get:
+      tags:
+        - Collections
+      summary: Get list of NFT collections listed on Artacle
+      description: |
+        Returns an array of all Artacle collections with their respective information such as Artacle slug, internal ID, etc. Pagination can be applied.
+      parameters:
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Max number of records to return
+          schema:
+            type: integer
+            maximum: 1000
+            default: 50
+        - name: offset
+          in: query
+          description: Number of records to skip for pagination
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of collections, paginated
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - is_finalized
+                properties:
+                  data:
+                    type: array
+                    description: Array of Collection Info
+                    items:
+                      allOf:
+                      - $ref: '#/components/schemas/Collection'
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+                
+  # Collection Rarity
+  /collections/{cid}/rarity:
+    get:
+      tags:
+        - Rarity Ranks
+      summary: Get the Rarity Ranks information for all tokens in a collection
+      description: Returns an array of all collection tokens with their rarity ranks. Those tokens that does not have a rank assigned will also be returned, with rank set to null. The response will indicate whether rarity was calculated for all tokens or not.
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Max number of tokens to return
+          schema:
+            type: integer
+            maximum: 1000
+            default: 50
+        - name: offset
+          in: query
+          description: Number of tokens to skip for pagination
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Success, returns list of tokens with their rarity ranks, paginated
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - is_finalized
+                properties:
+                  data:
+                    type: array
+                    description: Array of Token Rarity info
+                    items:
+                      allOf:
+                      - $ref: '#/components/schemas/TokenRarity'
+                  is_finalized:
+                    type: boolean
+                    description: A flag indicating whether the rarity was calculated based on all tokens' meta data
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+          
+# Token Rarity
+  /collections/{cid}/tokens/{tid}/rarity:
+    get:
+      tags:
+        - Rarity Ranks
+      summary: Get the Rarity Rank information for a specific token ID within a specific collection
+      description: Returns the rarity rank for a specific token. The response will indicate whether rarity was calculated for all tokens in a collection or not.
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: tid
+          in: path
+          required: true
+          description: Token ID as specified in a smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+          schema:
+            type: integer
+            example: 78000001
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success, returns Rarity Rank of a specific token
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - is_finalized
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TokenRarity'
+                  is_finalized:
+                    type: boolean
+                    description: A flag indicating whether the rarity was calculated based on all tokens' meta data
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+                
+# Schemas:
+components:
+  schemas:
+    Collection:
+      type: object
+      required:
+        - id
+        - subProjectId
+        - slug
+        - tokenAddress
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Artacle internal collection identifier. It is required to further address collections in the API.
+          example: 78
+        subProjectId:
+          type: integer
+          format: int32
+          nullable: true
+          description: Identifier of a collection within a shared smart contract (like Art Blocks or Bright Moment). Set to null if a collection is not deployed on a shared smart contract (like Bored Apes Yacht Club)
+          example: 78
+        slug:
+          type: string
+          description: A unique human readable collection identifier used in Artacle collection URLs
+          example: fidenza
+        tokenAddress:
+          type: string
+          description: Smart contract address of the collection, always lowecase
+          minLength: 42
+          maxLength: 42
+          pattern: ^0x[a-f0-9]{40}$
+          example: "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270"
+    TokenRarity:
+      type: object
+      required:
+        - tokenId
+        - rank
+      properties:
+        tokenId:
+          type: string
+          description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+          example: 78000001
+        rank:
+          type: integer
+          format: int32
+          nullable: true
+          description: Tokens Rarity Rank calculated by Artacle
+          example: 1
+    ErrorDetails:
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: specific error message will be here
+          
+  responses:
+    # 4xx:
+    BadRequestError: # 400
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorDetails"
+      description: Bad request
+    UnauthorizedError: # 401
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorDetails"
+      description: Unauthorized
+    ForbiddenError: # 403
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorDetails"
+      description: Forbidden
+    NotFoundError: # 404
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorDetails"
+      description: Not Found
+    TooManyRequestsError: # 429
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorDetails"
+      description: Too Many Requests
+      
+    # 5xx:
+    InternalServerError: # 500
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorDetails"
+      description: Internal server error
