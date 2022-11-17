@@ -192,6 +192,53 @@ paths:
           $ref: "#/components/responses/TooManyRequestsError"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
+# Profile
+  /profile/{address}:
+    get:
+      tags:
+        - Profiles
+        
+      summary: Get profile information for a specific wallet address
+      description: Returns the scores for a specific wallet address, based on its tokens trading history, and confidence in them. Also the response contains some statistical information about owned tokens.
+      parameters:
+        - name: address
+          in: path
+          required: true
+          description: Wallet address
+          schema:
+            type: string
+            minLength: 42
+            maxLength: 42
+            pattern: ^0x[a-fA-F0-9]{40}$
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success, returns profile information for a specific wallet address
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProfileInfo'
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
                 
 # Schemas:
 components:
@@ -242,6 +289,106 @@ components:
           nullable: true
           description: Tokens Rarity Rank calculated by Artacle
           example: 1
+    ProfileInfo:
+      type: object
+      required:
+        - scores
+        - tags
+        - allByAuthors
+        - attributes
+      properties:
+        scores:
+          type: object
+          description: Estimated scores
+          properties:
+            score:
+              type: number
+              format: float
+              description: Overall score
+              example: 4.712
+            scoreConfidence:
+              type: number
+              format: float
+              description: Overall score confidence
+              example: 0.85
+            commitmentScore:
+              type: number
+              format: float
+              description: Commitment score
+              example: 3.43
+            commitmentScoreConfidence:
+              type: number
+              format: float
+              description: Commitment score confidence
+              example: 0.8
+            tradingScore:
+              type: number
+              format: float
+              description: Trading score
+              example: 3.162
+            tradingScoreConfidence:
+              type: number
+              format: float
+              description: Trading score confidence
+              example: 0.8
+            curationScore:
+              type: number
+              format: float
+              description: Curation score
+              example: 4.996
+            curationScoreConfidence:
+              type: number
+              format: float
+              description: Curation score confidence
+              example: 0.95
+        tags:
+          type: array
+          nullable: true
+          description: Tags
+          items:
+            type: string
+          example:
+              - CryptoCitizen
+              - All Series 1-8 AB Curated
+              - AB Since 2022-11-07
+        allByAuthors:
+          type: array
+          nullable: true
+          description: Wallet owns at least one token of every collection created by the authors
+          items:
+            type: string
+          example:
+              - Alexis André
+              - Radix
+        attributes:
+          type: object
+          nullable: true
+          properties:
+            ABSince:
+              type: string
+              format: date
+              description: When was the first token of any ArtBlocks collection purchased
+              example: 2022-06-05
+            ABCuratedSince:
+              type: string
+              format: date
+              description: When was the first token of any ArtBlocks Curated collection purchased
+              example: 2021-07-24
+            Series[X]ABCuratedCount:
+              type: integer
+              format: int32
+              description: Amount of ArtBlocks Curated Series X (1-8) collections among which the user owns tokens
+              example: 6
+            AllABCuratedCount:
+              type: integer
+              format: int32
+              description: Amount of ArtBlocks Curated collections among which the user owns tokens
+              example: 67
+            AllCryptoCitizensCount:
+              type: integer
+              format: int32
+              description: Amount of CryptoCitizen collections among which the user owns tokens
+              example: 1
     ErrorDetails:
       required:
         - error
