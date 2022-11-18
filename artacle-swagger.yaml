@@ -301,20 +301,10 @@ components:
           type: object
           description: Estimated scores
           properties:
-            score:
-              type: number
-              format: float
-              description: Overall score
-              example: 4.712
-            scoreConfidence:
-              type: number
-              format: float
-              description: Overall score confidence
-              example: 0.85
             commitmentScore:
               type: number
               format: float
-              description: Commitment score
+              description: Commitment score. It indicates whether a wallet tends to hold tokens or sell them. quickly
               example: 3.43
             commitmentScoreConfidence:
               type: number
@@ -324,7 +314,7 @@ components:
             tradingScore:
               type: number
               format: float
-              description: Trading score
+              description: Trading score. It indicates whether a wallet usually trades for a big or small profit or even a loss. Repeatability matters.
               example: 3.162
             tradingScoreConfidence:
               type: number
@@ -334,7 +324,7 @@ components:
             curationScore:
               type: number
               format: float
-              description: Curation score
+              description: Curation score. It indicates whether a wallet thoroughly selected tokens that now have high market cap and liquidity. Many tokens of micro-cap collections would decrease this score.
               example: 4.996
             curationScoreConfidence:
               type: number
@@ -350,7 +340,7 @@ components:
           example:
               - CryptoCitizen
               - All Series 1-8 AB Curated
-              - AB Since 2022-11-07
+              - AB Since 2021-06-05
         allByAuthors:
           type: array
           nullable: true
@@ -368,27 +358,35 @@ components:
               type: string
               format: date
               description: When was the first token of any ArtBlocks collection purchased
-              example: 2022-06-05
             ABCuratedSince:
               type: string
               format: date
               description: When was the first token of any ArtBlocks Curated collection purchased
-              example: 2021-07-24
             Series[X]ABCuratedCount:
               type: integer
               format: int32
               description: Amount of ArtBlocks Curated Series X (1-8) collections among which the user owns tokens
-              example: 6
             AllABCuratedCount:
               type: integer
               format: int32
               description: Amount of ArtBlocks Curated collections among which the user owns tokens
-              example: 67
             AllCryptoCitizensCount:
               type: integer
               format: int32
               description: Amount of CryptoCitizen collections among which the user owns tokens
-              example: 1
+          example:
+            ABSince: "2021-06-05"
+            ABCuratedSince: "2021-07-24"
+            Series1ABCuratedCount: 6
+            Series2ABCuratedCount: 13
+            Series3ABCuratedCount: 12
+            Series4ABCuratedCount: 9
+            Series5ABCuratedCount: 7
+            Series6ABCuratedCount: 7
+            Series7ABCuratedCount: 5
+            Series8ABCuratedCount: 8
+            AllABCuratedCount: 67
+            AllCryptoCitizensCount: 1
     ErrorDetails:
       required:
         - error
