@@ -200,7 +200,7 @@ paths:
         - Profiles
         
       summary: Get profile information for a specific wallet address
-      description: Returns the scores for a specific wallet address, based on its tokens trading history, and confidence in them. Also the response contains some statistical information about owned tokens.
+      description: Returns the scores for a specific wallet address, based on its tokens trading history, and confidence in them. Also the response contains some statistical information about owned tokens. Read more [here](https://medium.com/@artacle/who-is-who-in-the-nft-world-95138e5a6e62).
       parameters:
         - name: address
           in: path
