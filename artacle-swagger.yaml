@@ -200,17 +200,18 @@ paths:
         - Profiles
         
       summary: Get profile information for a specific wallet address
-      description: Returns the scores for a specific wallet address, based on its tokens trading history, and confidence in them. Also the response contains some statistical information about owned tokens. Read more [here](https://medium.com/@artacle/who-is-who-in-the-nft-world-95138e5a6e62).
+      description: Returns attributes and parameters of a specific Ethereum address. The attributes are calculated by Artacle based on wallet’s historical behavior as described [here](https://medium.com/@artacle/who-is-who-in-the-nft-world-95138e5a6e62).
       parameters:
         - name: address
           in: path
           required: true
-          description: Wallet address
+          description: Wallet’s Ethereum address
           schema:
             type: string
             minLength: 42
             maxLength: 42
             pattern: ^0x[a-fA-F0-9]{40}$
+            example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
         - name: apiKey
           in: query
           required: true
@@ -304,37 +305,43 @@ components:
             commitmentScore:
               type: number
               format: float
-              description: Commitment score. It indicates whether a wallet tends to hold tokens or sell them quickly
+              description: Commitment score. It indicates whether a wallet tends to hold tokens or sell them quickly.
+              nullable: true
               example: 3.43
             commitmentScoreConfidence:
               type: number
               format: float
-              description: Commitment score confidence
+              description: Commitment score confidence, based on the historical data availability. Zero to one.
+              nullable: true
               example: 0.8
             tradingScore:
               type: number
               format: float
               description: Trading score. It indicates whether a wallet usually trades for a big or small profit or even a loss. Repeatability matters.
+              nullable: true
               example: 3.162
             tradingScoreConfidence:
               type: number
               format: float
-              description: Trading score confidence
+              description: Trading score confidence, based on the historical data availability. Zero to one.
+              nullable: true
               example: 0.8
             curationScore:
               type: number
               format: float
               description: Curation score. It indicates whether a wallet thoroughly selected tokens that now have high market cap and liquidity. Many tokens of micro-cap collections would decrease this score.
+              nullable: true
               example: 4.996
             curationScoreConfidence:
               type: number
               format: float
-              description: Curation score confidence
+              description: Curation score confidence, based on the historical data availability. Zero to one.
+              nullable: true
               example: 0.95
         tags:
           type: array
           nullable: true
-          description: Tags
+          description: Labels assigned to a wallet based on its portfolio and historical behavior
           items:
             type: string
           example:
@@ -344,7 +351,7 @@ components:
         allByAuthors:
           type: array
           nullable: true
-          description: Wallet owns at least one token of every collection created by the authors
+          description: Wallet owns at least one token of every collection created by the authors listed here
           items:
             type: string
           example:
@@ -353,6 +360,7 @@ components:
         attributes:
           type: object
           nullable: true
+          description: A number of key-value pairs, describing particular parameters of a wallet. Set of names is subject to extend in the future.
           properties:
             ABSince:
               type: string
