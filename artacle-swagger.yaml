@@ -338,6 +338,16 @@ components:
               description: Curation score confidence, based on the historical data availability. Zero to one.
               nullable: true
               example: 0.95
+            ribbons:
+              type: array
+              nullable: true
+              description: Labels assigned to a wallet based on high score values.
+              items:
+                type: string
+              example:
+                - Diamond holder
+                - Curator
+                - Master trader
         tags:
           type: array
           nullable: true
