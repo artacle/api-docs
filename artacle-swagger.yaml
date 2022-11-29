@@ -197,7 +197,7 @@ paths:
   /profile/{address}:
     get:
       tags:
-        - Profiles
+        - Profile
         
       summary: Get profile information for a specific wallet address
       description: Returns attributes and parameters of a specific Ethereum address. The attributes are calculated by Artacle based on wallet’s historical behavior as described [here](https://medium.com/@artacle/who-is-who-in-the-nft-world-95138e5a6e62).
@@ -241,6 +241,7 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
           
+# Profiles
   /profiles/search:
     post:
       tags:
