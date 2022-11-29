@@ -240,7 +240,145 @@ paths:
           $ref: "#/components/responses/TooManyRequestsError"
         '500':
           $ref: "#/components/responses/InternalServerError"
-                
+          
+  /profiles/search:
+    post:
+      tags:
+        - Profiles
+        
+      summary: Beta. Create a resource to search particular profiles
+      description: Creates a search resource to extract profiles (addresses) matching the query specified in the POST body.
+      parameters:
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+      requestBody:
+        description: Configuration of the search resource
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfilesSearchConf'
+
+      responses:
+        '201':
+          description: Success, returns the created search resource in Location header
+          headers:
+            Location:
+              description:  Created search resource, e.g. "/profiles/search/1"
+              schema:
+                type: string
+
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /profiles/search/{searchId}:  
+    get:
+      tags:
+        - Profiles
+        
+      summary: Beta. Get search results.
+      description: Get results of the previously created search. Pagination is enabled.
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          description: Search resource id
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: Success, returns the list of Etherium addresses
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - more_data
+                properties:
+                  data:
+                    oneOf:
+                      - type: array
+                        items:
+                          type: string
+                          minLength: 42
+                          maxLength: 42
+                          pattern: ^0x[a-fA-F0-9]{40}$
+                          example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
+                      - type: array
+                        items:
+                          $ref: '#/components/schemas/ProfileInfoFull'
+                  hasMoreData:
+                    type: boolean
+                    description: A flag indicating whether there are more data or not
+                    example: false
+        '204':
+          description: Search end. No more data.
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      tags:
+        - Profiles
+        
+      summary: Beta. Delete search resource.
+      description: Delete the previously created search resource
+      parameters:
+        - name: searchId
+          in: path
+          required: true
+          description: Search resource id
+          schema:
+            type: integer
+            format: int32
+            example: 1
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+
+      responses:
+        '204':
+          description: Deleted. No the search resource anymore.
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
 # Schemas:
 components:
   schemas:
@@ -405,6 +543,142 @@ components:
             Series8ABCuratedCount: 8
             AllABCuratedCount: 67
             AllCryptoCitizensCount: 1
+
+    ProfileInfoFull:
+      allOf:
+        - type: object
+          required:
+            - wallet
+          properties:
+            wallet:
+              type: string
+              description: Etherium address
+              minLength: 42
+              maxLength: 42
+              pattern: ^0x[a-fA-F0-9]{40}$
+              example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
+        - $ref: '#/components/schemas/ProfileInfo'
+
+    ProfilesSearchConf:
+      type: object
+      required:
+        - query
+      properties:
+        query:
+          type: object
+          description: Filters configuration of the search resource. Every property defines one or more filtering conditions. Logical operation AND is used between the filtering conditions. At least one condition must be specified.
+          properties:
+            scores:
+              type: object
+              description: Conditions for different score values, combined with AND. At least one condition must be specified.
+              properties:
+                commitmentScore:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                commitmentScoreConfidence:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                tradingScore:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                tradingScoreConfidence:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                curationScore:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                curationScoreConfidence:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+            tags:
+              type: object
+              description: Filtering conditions on tags
+              required:
+                - values
+              properties:
+                values:
+                  type: array
+                  description: List of tag values to find. Exact match, case sensitive.
+                  items:
+                    type: string
+            allByAuthors:
+              type: object
+              description: Filtering conditions on allByAuthors section
+              required:
+                - values
+              properties:
+                values:
+                  type: array
+                  description: List of allByAuthors values to find. Exact match, case sensitive.
+                  items:
+                    type: string
+            attributes:
+              type: object
+              description: Filtering conditions on a number of key-value pairs, describing particular parameters of a wallet. Set of names is subject to extend in the future.
+              properties:
+                ABSince:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                ABCuratedSince:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                Series[X]ABCuratedCount:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                AllABCuratedCount:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                AllCryptoCitizensCount:
+                  $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+        limit:
+          type: integer
+          format: int32
+          description: "Pagination: how many records to be returned per GET request"
+        detailed:
+          type: boolean
+          description: "Result formatting: only addresses will be returned on GET request if false (by default). Otherwise all available scores and attributes will be returned for each profile."
+      example:
+        query:
+          scores:
+            commitmentScore:
+              gt: 4.5
+            commitmentScoreConfidence:
+              ge: 0.8
+          tags:
+            - Grailer
+            - All Series 1-8 AB Curated
+          attributes:
+            ABSince:
+              gt: "2021-03-05"
+        limit: 10
+
+    ProfilesSearchConfFunctions:
+      type: object
+      description: Standard comparison functions to be applied to a score (number) or an attribute (date, number) - greater, less, etc. Combined with AND.
+      properties:
+        gt:
+          oneOf:
+            - type: integer
+              format: int32
+            - type: number
+              format: float
+            - type: string
+          description: Greater than a value
+        ge:
+          oneOf:
+            - type: integer
+              format: int32
+            - type: number
+              format: float
+            - type: string
+          description: Greater than or equal to a value
+        lt:
+          oneOf:
+            - type: integer
+              format: int32
+            - type: number
+              format: float
+            - type: string
+          description: Less than a value
+        le:
+          oneOf:
+            - type: integer
+              format: int32
+            - type: number
+              format: float
+            - type: string
+          description: Less than or equal to a value
+
     ErrorDetails:
       required:
         - error
