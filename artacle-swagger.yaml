@@ -243,12 +243,96 @@ paths:
           
 # Profiles
   /profiles/search:
+    get:
+      tags:
+        - Profiles
+        
+      summary: Beta. Retrieve a list of profiles.
+      description: Retrieve a list of profiles according to given conditions. Pagination is enabled.
+      parameters:
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: "Pagination: how many records to be returned."
+          schema:
+            type: integer
+            format: int32
+            default: 10
+            example: 100
+        - name: offset
+          in: query
+          description: "Pagination: how many records to be skipped before starting to collect the result set"
+          schema:
+            type: integer
+            format: int32
+            default: 0
+            example: 100
+        - name: detailed
+          in: query
+          description: "Result formatting: only addresses will be returned on GET request if false. Otherwise all available scores and attributes will be returned for each profile."
+          schema:
+            type: boolean
+            default: false
+            example: true
+        - name: tags
+          in: query
+          description: Filtering condition on tags. If the parameter is specified several times, any of the values should be present among the profile tags.
+          schema:
+            type: string
+            example: Grailer
+        - name: allByAuthors
+          in: query
+          description: Filtering condition on allByAuthors. If the parameter is specified several times, any of the values should be present among allByAuthors section of the profile.
+          schema:
+            type: string
+            example: Alexis André
+        - name: "[parameter]_[function]"
+          in: query
+          description: "Filtering condition on __scores__ or __attributes__ parameters. _[parameter]_ is one of parameters of the following profile sections: __scores__ or __attributes__. _[function]_ is one of the following arithmetic operations: _greater_ or _less_ - for __number__ parameters or similar ones for __date__ values: _after_ or _before_."
+          schema:
+            oneOf:
+              - type: number
+              - type: string
+          examples:
+            commitmentScore_less:
+              value: 4.5
+              description: Value of parameter commitmentScore in scores section of profile should be less than 4.5
+            commitmentScoreConfidence_greater:
+              value: 0.85
+              description: Value of parameter commitmentScoreConfidence in scores section of profile should be greater than 0.85
+            ABSince_after:
+              value: "2021-04-13"
+              description: Value of parameter ABSince in attributes section of profile should be after 2021-04-13
+
+      responses:
+        '200':
+          description: Success, returns the list of Etherium addresses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfilesSearchResponse'
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
     post:
       tags:
         - Profiles
         
-      summary: Beta. Create a resource to search particular profiles
-      description: Creates a search resource to extract profiles (addresses) matching the query specified in the POST body.
+      summary: Beta. Initialize a search resource for retrieving a list of profiles.
+      description: Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body.
       parameters:
         - name: apiKey
           in: query
@@ -289,8 +373,8 @@ paths:
       tags:
         - Profiles
         
-      summary: Beta. Get search results.
-      description: Get results of the previously created search. Pagination is enabled.
+      summary: Beta. Retrieve a list of profiles based on the search resource.
+      description: Retrieve a list of profiles based on the previously created search resource. Pagination is enabled.
       parameters:
         - name: searchId
           in: path
@@ -313,27 +397,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                required:
-                  - data
-                  - more_data
-                properties:
-                  data:
-                    oneOf:
-                      - type: array
-                        items:
-                          type: string
-                          minLength: 42
-                          maxLength: 42
-                          pattern: ^0x[a-fA-F0-9]{40}$
-                          example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
-                      - type: array
-                        items:
-                          $ref: '#/components/schemas/ProfileInfoFull'
-                  hasMoreData:
-                    type: boolean
-                    description: A flag indicating whether there are more data or not
-                    example: false
+                $ref: '#/components/schemas/ProfilesSearchResponse'
         '204':
           description: Search end. No more data.
         '401':
@@ -350,7 +414,7 @@ paths:
       tags:
         - Profiles
         
-      summary: Beta. Delete search resource.
+      summary: Beta. Delete the search resource.
       description: Delete the previously created search resource
       parameters:
         - name: searchId
@@ -549,9 +613,9 @@ components:
       allOf:
         - type: object
           required:
-            - wallet
+            - address
           properties:
-            wallet:
+            address:
               type: string
               description: Etherium address
               minLength: 42
@@ -624,10 +688,12 @@ components:
         limit:
           type: integer
           format: int32
-          description: "Pagination: how many records to be returned per GET request"
+          description: "Pagination: how many records to be returned per GET request."
+          default: 10
         detailed:
           type: boolean
           description: "Result formatting: only addresses will be returned on GET request if false (by default). Otherwise all available scores and attributes will be returned for each profile."
+          default: false
       example:
         query:
           scores:
@@ -679,6 +745,29 @@ components:
               format: float
             - type: string
           description: Less than or equal to a value
+
+    ProfilesSearchResponse:
+      type: object
+      required:
+        - data
+        - more_data
+      properties:
+        data:
+          oneOf:
+            - type: array
+              items:
+                type: string
+                minLength: 42
+                maxLength: 42
+                pattern: ^0x[a-fA-F0-9]{40}$
+                example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
+            - type: array
+              items:
+                $ref: '#/components/schemas/ProfileInfoFull'
+        hasMoreData:
+          type: boolean
+          description: A flag indicating whether there are more data or not
+          example: false
 
     ErrorDetails:
       required:
