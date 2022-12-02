@@ -248,7 +248,7 @@ paths:
         - Profiles
         
       summary: Beta. Retrieve a list of profiles.
-      description: Retrieve a list of profiles according to given conditions. Pagination is enabled.
+      description: Retrieve a list of profiles according to given conditions. Pagination is enabled. At least one filtering condition should be specified.
       parameters:
         - name: apiKey
           in: query
@@ -301,13 +301,13 @@ paths:
           examples:
             commitmentScore_less:
               value: 4.5
-              description: Value of parameter commitmentScore in scores section of profile should be less than 4.5
+              description: Value of parameter _commitmentScore_ in __scores__ section of profile should be _less_ than 4.5
             commitmentScoreConfidence_greater:
               value: 0.85
-              description: Value of parameter commitmentScoreConfidence in scores section of profile should be greater than 0.85
+              description: Value of parameter _commitmentScoreConfidence_ in __scores__ section of profile should be _greater_ than 0.85
             ABSince_after:
               value: "2021-04-13"
-              description: Value of parameter ABSince in attributes section of profile should be after 2021-04-13
+              description: Value of parameter _ABSince_ in __attributes__ section of profile should be _after_ 2021-04-13
 
       responses:
         '200':
