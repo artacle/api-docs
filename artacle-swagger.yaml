@@ -246,8 +246,8 @@ paths:
     get:
       tags:
         - Profiles
-        
-      summary: Beta. Retrieve a list of profiles.
+
+      summary: Beta. Retrieve a list of profiles via a single call
       description: Retrieve a list of profiles according to given conditions. Pagination is enabled. At least one filtering condition should be specified.
       parameters:
         - name: apiKey
@@ -258,20 +258,18 @@ paths:
             type: string
         - name: limit
           in: query
-          description: "Pagination: how many records to be returned."
+          description: "Pagination: how many records to be returned. 1 to 1000."
           schema:
             type: integer
             format: int32
-            default: 10
-            example: 100
-        - name: offset
+            default: 100
+            example: 1000
+        - name: cursor
           in: query
-          description: "Pagination: how many records to be skipped before starting to collect the result set"
+          description: "Pagination: cursor to request the next page of profiles for a subsequent call."
           schema:
-            type: integer
-            format: int32
-            default: 0
-            example: 100
+            type: string
+            example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
         - name: detailed
           in: query
           description: "Result formatting: only addresses will be returned on GET request if false. Otherwise all available scores and attributes will be returned for each profile."
@@ -281,13 +279,13 @@ paths:
             example: true
         - name: tags
           in: query
-          description: Filtering condition on tags. If the parameter is specified several times, any of the values should be present among the profile tags.
+          description: Filtering condition on tags. If multiple tags were specified, profiles matching any of the provided tags will be returned.
           schema:
             type: string
             example: Grailer
         - name: allByAuthors
           in: query
-          description: Filtering condition on allByAuthors. If the parameter is specified several times, any of the values should be present among allByAuthors section of the profile.
+          description: Filtering condition on allByAuthors. If multiple allByAuthors were specified, profiles matching any of the provided authors will be returned.
           schema:
             type: string
             example: Alexis André
@@ -315,7 +313,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProfilesSearchResponse'
+                $ref: '#/components/schemas/ProfilesSearchSimpleResponse'
         '400':
           $ref: "#/components/responses/BadRequestError"
         '401':
@@ -331,8 +329,8 @@ paths:
       tags:
         - Profiles
         
-      summary: Beta. Initialize a search resource for retrieving a list of profiles.
-      description: Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body.
+      summary: Beta. Initialize a search resource for retrieving a list of profiles
+      description: Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body. The created search resource will expire in a hour.
       parameters:
         - name: apiKey
           in: query
@@ -353,7 +351,7 @@ paths:
           description: Success, returns the created search resource in Location header
           headers:
             Location:
-              description:  Created search resource, e.g. "/profiles/search/1"
+              description:  Created search resource, e.g. "/profiles/search/LKxeLHSuHj7LcrXOlGYg1"
               schema:
                 type: string
 
@@ -373,7 +371,7 @@ paths:
       tags:
         - Profiles
         
-      summary: Beta. Retrieve a list of profiles based on the search resource.
+      summary: Beta. Retrieve a list of profiles based on the search resource
       description: Retrieve a list of profiles based on the previously created search resource. Pagination is enabled.
       parameters:
         - name: searchId
@@ -381,9 +379,8 @@ paths:
           required: true
           description: Search resource id
           schema:
-            type: integer
-            format: int32
-            example: 1
+            type: string
+            example: LKxeLHSuHj7LcrXOlGYg1
         - name: apiKey
           in: query
           required: true
@@ -414,7 +411,7 @@ paths:
       tags:
         - Profiles
         
-      summary: Beta. Delete the search resource.
+      summary: Beta. Delete the search resource
       description: Delete the previously created search resource
       parameters:
         - name: searchId
@@ -688,8 +685,8 @@ components:
         limit:
           type: integer
           format: int32
-          description: "Pagination: how many records to be returned per GET request."
-          default: 10
+          description: "Pagination: how many records to be returned per GET request. 1 to 1000."
+          default: 100
         detailed:
           type: boolean
           description: "Result formatting: only addresses will be returned on GET request if false (by default). Otherwise all available scores and attributes will be returned for each profile."
@@ -750,7 +747,7 @@ components:
       type: object
       required:
         - data
-        - more_data
+        - hasMoreData
       properties:
         data:
           oneOf:
@@ -767,7 +764,20 @@ components:
         hasMoreData:
           type: boolean
           description: A flag indicating whether there are more data or not
-          example: false
+          example: true
+
+    ProfilesSearchSimpleResponse:
+      allOf:
+        - $ref: '#/components/schemas/ProfilesSearchResponse'
+        - type: object
+          required:
+            - cursor
+          properties:
+            cursor:
+              type: string
+              description: Cursor to request the next page of profiles for a subsequent call
+              nullable: true
+              example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
 
     ErrorDetails:
       required:
