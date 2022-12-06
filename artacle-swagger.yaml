@@ -7,7 +7,7 @@ info:
       OpenAPI 3.0 based swagger docs for [Artacle](https://artacle.io) Public API.
       
       
-      The API base URL is [https://api.artacle.io/v1/](https://api.artacle.io/v1/). An API Key is required to use the API. Contact us via [api@artacle.io](mailto:api@artacle.io) to request one. Please describe your project in short.
+      The API base URL is [https://api.artacle.io/v1/](https://api.artacle.io/v1/). An API Key is required to use the API. Contact us via [api@artacle.io](mailto:api@artacle.io) to request one. Please describe your project in short. The API related to profiles is given to chosen partners only at the moment.
       
       
       We ask you to indicate in your app that the data was obtained from Artacle, i.e. by providing links to the Artacle website.
@@ -403,39 +403,6 @@ paths:
           $ref: "#/components/responses/ForbiddenError"
         '404':
           $ref: "#/components/responses/NotFoundError"
-        '429':
-          $ref: "#/components/responses/TooManyRequestsError"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-    delete:
-      tags:
-        - Profiles
-        
-      summary: Beta. Delete the search resource
-      description: Delete the previously created search resource
-      parameters:
-        - name: searchId
-          in: path
-          required: true
-          description: Search resource id
-          schema:
-            type: integer
-            format: int32
-            example: 1
-        - name: apiKey
-          in: query
-          required: true
-          description: API access key
-          schema:
-            type: string
-
-      responses:
-        '204':
-          description: Deleted. No the search resource anymore.
-        '401':
-          $ref: "#/components/responses/UnauthorizedError"
-        '403':
-          $ref: "#/components/responses/ForbiddenError"
         '429':
           $ref: "#/components/responses/TooManyRequestsError"
         '500':
