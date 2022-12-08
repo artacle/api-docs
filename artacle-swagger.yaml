@@ -279,16 +279,26 @@ paths:
             example: true
         - name: tags
           in: query
-          description: Filtering condition on tags. If multiple tags were specified, profiles matching any of the provided tags will be returned.
+          description: Filtering condition on tags. If multiple tags were specified, profiles matching all of the provided tags will be returned.
           schema:
             type: string
             example: Grailer
         - name: allByAuthors
           in: query
-          description: Filtering condition on allByAuthors. If multiple allByAuthors were specified, profiles matching any of the provided authors will be returned.
+          description: Filtering condition on allByAuthors. If multiple allByAuthors were specified, profiles matching all of the provided authors will be returned.
           schema:
             type: string
             example: Alexis André
+        - name: ribbons
+          in: query
+          description: Filtering condition on ribbons. If multiple ribbons were specified, profiles matching all of the provided ribbons will be returned.
+          schema:
+            type: string
+            enum:
+              - Diamond holder
+              - Curator
+              - Master trader
+            example: Curator
         - name: "[parameter]_[function]"
           in: query
           description: "Filtering condition on __scores__ or __attributes__ parameters. _[parameter]_ is one of parameters of the following profile sections: __scores__ or __attributes__. _[function]_ is one of the following arithmetic operations: _greater_ or _less_ - for __number__ parameters or similar ones for __date__ values: _after_ or _before_."
@@ -372,7 +382,7 @@ paths:
         - Profiles
         
       summary: Beta. Retrieve a list of profiles based on the search resource
-      description: Retrieve a list of profiles based on the previously created search resource. Pagination is enabled.
+      description: Retrieve a list of profiles based on the previously created search resource. Pagination is enabled (make sure caching is disabled).
       parameters:
         - name: searchId
           in: path
@@ -613,26 +623,41 @@ components:
                   $ref: '#/components/schemas/ProfilesSearchConfFunctions'
                 curationScoreConfidence:
                   $ref: '#/components/schemas/ProfilesSearchConfFunctions'
+                ribbons:
+                  type: array
+                  description: List of ribbons to find. Profile should contain all of the values in its section ribbons.
+                  items:
+                    type: string
+                    enum:
+                      - Diamond holder
+                      - Curator
+                      - Master trader
             tags:
               type: object
               description: Filtering conditions on tags
-              required:
-                - values
               properties:
-                values:
+                allOf:
                   type: array
-                  description: List of tag values to find. Exact match, case sensitive.
+                  description: List of tag values to find. Profile should contain all of the tags. Exact match, case sensitive.
+                  items:
+                    type: string
+                anyOf:
+                  type: array
+                  description: List of tag values to find. Profile should contain any of the tags. Exact match, case sensitive.
                   items:
                     type: string
             allByAuthors:
               type: object
               description: Filtering conditions on allByAuthors section
-              required:
-                - values
               properties:
-                values:
+                allOf:
                   type: array
-                  description: List of allByAuthors values to find. Exact match, case sensitive.
+                  description: List of allByAuthors values to find. Profile should contain all of the values in its section allByAuthors. Exact match, case sensitive.
+                  items:
+                    type: string
+                anyOf:
+                  type: array
+                  description: List of allByAuthors values to find. Profile should contain any of the values in its section allByAuthors. Exact match, case sensitive.
                   items:
                     type: string
             attributes:
@@ -665,9 +690,12 @@ components:
               gt: 4.5
             commitmentScoreConfidence:
               ge: 0.8
+            ribbons:
+              - Master trader
           tags:
-            - Grailer
-            - All Series 1-8 AB Curated
+            "allOf":
+              - Grailer
+              - All Series 1-8 AB Curated
           attributes:
             ABSince:
               gt: "2021-03-05"
