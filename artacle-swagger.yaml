@@ -70,7 +70,8 @@ paths:
           $ref: "#/components/responses/TooManyRequestsError"
         '500':
           $ref: "#/components/responses/InternalServerError"
-                
+
+
   # Collection Rarity
   /collections/{cid}/rarity:
     get:
@@ -182,6 +183,126 @@ paths:
                   is_finalized:
                     type: boolean
                     description: A flag indicating whether the rarity was calculated based on all tokens' meta data
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  # Collection Physical Print
+  /collections/{cid}/print:
+    get:
+      tags:
+        - Physical Prints
+      summary: Get the Physical Prints information for all tokens in a collection
+      description: Returns an array of all collection tokens with their physical prints.
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Max number of tokens to return
+          schema:
+            type: integer
+            maximum: 1000
+            default: 50
+        - name: offset
+          in: query
+          description: Number of tokens to skip for pagination
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Success, returns list of tokens with their physical prints, paginated
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - hasMoreData
+                properties:
+                  data:
+                    type: array
+                    description: Array of Token Physical Print info
+                    items:
+                      allOf:
+                      - $ref: '#/components/schemas/TokenPhysicalPrint'
+                  hasMoreData:
+                    type: boolean
+                    description: A flag indicating whether there are more data or not
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+# Token Physical Print
+  /collections/{cid}/tokens/{tid}/print:
+    get:
+      tags:
+        - Physical Prints
+      summary: Get the Physical Print information for a specific token ID within a specific collection
+      description: Returns the physical print information for a specific token.
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: tid
+          in: path
+          required: true
+          description: Token ID as specified in a smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+          schema:
+            type: integer
+            example: 78000001
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success, returns physical print information of a specific token
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/TokenPhysicalPrint'
+        '400':
+          $ref: "#/components/responses/BadRequestError"
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -467,6 +588,29 @@ components:
           nullable: true
           description: Tokens Rarity Rank calculated by Artacle
           example: 1
+          
+    TokenPhysicalPrint:
+      type: object
+      required:
+        - tokenId
+        - isPrinted
+        - printDate
+      properties:
+        tokenId:
+          type: string
+          description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+          example: 78000001
+        isPrinted:
+          type: boolean
+          description: A flag indicating whether the token was printed or not
+          example: true
+        printDate:
+          type: string
+          format: date
+          description: The date when the token was printed
+          nullable: true
+          example: 2022-07-24
+          
     ProfileInfo:
       type: object
       required:
