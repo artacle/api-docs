@@ -217,11 +217,11 @@ paths:
             type: string
         - name: limit
           in: query
-          description: Max number of tokens to return
+          description: Max number of tokens to return. 1 to 1000.
           schema:
             type: integer
             maximum: 1000
-            default: 50
+            default: 100
         - name: offset
           in: query
           description: Number of tokens to skip for pagination
@@ -609,7 +609,7 @@ components:
           format: date
           description: The date when the token was printed
           nullable: true
-          example: 2022-07-24
+          example: "2022-07-24"
           
     ProfileInfo:
       type: object
