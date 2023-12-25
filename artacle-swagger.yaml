@@ -11,7 +11,7 @@ info:
       
       
       We ask you to indicate in your app that the data was obtained from Artacle, i.e. by providing links to the Artacle website.
-  version: "1.0.0"
+  version: 1.1.0
   title: Artacle Public API
 
 paths:
@@ -303,6 +303,281 @@ paths:
                     $ref: '#/components/schemas/TokenPhysicalPrint'
         '400':
           $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+#  Collection Traits
+  /collections/{cid}/traits/v1:
+    get:
+      tags:
+        - Traits
+      summary: Get traits information and valuation within a specific collection. All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
+      description: Returns all collection traits.
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: traitName
+          in: query
+          required: false
+          description: Query only traits with certain name
+          schema:
+            type: string
+            example: Color
+        - name: sortBy
+          in: query
+          required: false 
+          description: Sort result by one of criteria
+          schema:
+            type: string
+            enum:
+              - valuationAllTime
+              - valuationRecent
+              - floor
+              - totalSalesVolume
+              - totalAmountOfSales
+            default: valuationAllTime
+            example: valuationAllTime
+        - name: sortingDirection
+          in: query
+          required: false
+          description: "Sorting direction: ascending, descending"
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc
+        - name: offset
+          in: query
+          required: false
+          description: Results pagination
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: limit
+          in: query
+          required: false
+          description: Limit elements to fetch
+          schema:
+            type: integer
+            example: 50
+            default: 50
+            maximum: 1000
+      responses:
+        '200':
+          description: Success, returns array of collection traits, its valuation and information.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    description: Array of Traits info
+                    items:
+                      $ref: '#/components/schemas/CollectionTraits'
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+#  Collection Trait
+  /collections/{cid}/trait/v1:
+    get:
+      tags:
+        - Traits
+      summary: Get particular trait information and valuation within a specific collection. All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
+      description: Returns particular collection trait information
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: traitName
+          in: query
+          required: true
+          description: Query only traits with certain name
+          schema:
+            type: string
+            example: Color
+        - name: traitValue
+          in: query
+          required: true
+          description: Query only traits with certain value
+          schema:
+            type: string
+            example: Color
+      responses:
+        '200':
+          description: Success, returns collection trait, its valuation and information.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CollectionTrait'
+
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+          
+#  Collection Trait TTF
+  /collections/{cid}/trait/ttf/v1:
+    get:
+      tags:
+        - Traits
+      summary: Get particular trait trait-to-floor information. all prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
+      description: Returns particular collection trait trait-to-floor information
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: traitName
+          in: query
+          required: true
+          description: Query only traits with certain name
+          schema:
+            type: string
+            example: Color
+        - name: traitValue
+          in: query
+          required: true
+          description: Query only traits with certain value
+          schema:
+            type: string
+            example: Color
+        - name: startTimestamp
+          in: query
+          required: false
+          description: Unix timestamp. Indicates start time of collected samples. Method fetches everything till endTimestamp if not specified.
+          schema:
+            type: number
+            format: uint64
+        - name: endTimestamp
+          in: query
+          required: false
+          description: Unix timestamp. Indicates end time of collected samples. Set to now by default.
+          schema:
+            type: number
+            format: uint64
+        - name: includeSales
+          in: query
+          required: false
+          schema:
+            type: number
+            enum:
+              - 0
+              - 1
+            default: 0
+        - name: offset
+          in: query
+          required: false
+          description: Results pagination
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: limit
+          in: query
+          required: false
+          description: Limit elements to fetch
+          schema:
+            type: integer
+            example: 50
+            default: 50
+            maximum: 1000
+      responses:
+        '200':
+          description: Success, returns specific trait TTF information
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      startTimestamp:
+                        description: Unix timestamp. Indicates start time used in query
+                        type: number
+                        format: uint64
+                      endTimestamp:
+                        description: Unix timestamp. Indicates end time used in query
+                        type: number
+                        format: uint64
+                      medianTTF:
+                        type: number
+                        format: float
+                      medianTTFUSD:
+                        type: number
+                        format: float
+                      sales:
+                        description: Historical information array. Included if includeSales is set to 1 in request
+                        type: array
+                        items:
+                          allOf:
+                          - $ref: '#/components/schemas/CollectionTraitSale'
+
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -741,7 +1016,8 @@ components:
               pattern: ^0x[a-fA-F0-9]{40}$
               example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
         - $ref: '#/components/schemas/ProfileInfo'
-
+          
+          
     ProfilesSearchConf:
       type: object
       required:
@@ -918,6 +1194,202 @@ components:
               nullable: true
               example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
 
+    CollectionTraits:
+      type: object
+      required:
+        - traitValue
+        - valuationAllTime
+        - valuationAllTimeUSD
+        - valuationRecent
+        - valuationRecentUSD
+        - recentPeriodMonths
+        - totalAmountOfSales
+        - medianTTFAllTime
+        - medianTTFRecentPeriod
+        - quantity
+        - largeDistinctCount
+      properties:
+        traitValue:
+          type: string
+          description: Trait value in form of trait_name:value
+          example: Color:Red
+        valuationAllTime:
+          description: Trait valuation for all time
+          type: number
+          format: float
+        valuationAllTimeUSD:
+          description: Trait valuation for all time
+          type: number
+          format: float
+        valuationRecent:
+          description: Trait valuation for recent period
+          type: number
+          format: float
+        valuationRecentUSD:
+          description: Trait valuation for recent period
+          type: number
+          format: float
+        recentPeriodMonths:
+          description: Recent period of trait valuation
+          type: number
+          format: uint32
+        totalAmountOfSales:
+          description: Amount of sales
+          type: number
+          format: uint32
+        medianTTFAllTime:
+          description: Median trait to floor for all time
+          type: number
+          format: float
+        medianTTFRecentPeriod:
+          description: Median trait to floor for recent period
+          type: number
+          format: float
+        tokensCountWithTrait:
+          description: Count of tokens with this trait
+          type: number
+          format: uint32
+          example: 1
+        largeDistinctCount:
+          description: Indicates if trait value is insignificant
+          type: boolean
+        floor:
+          description: Trait floor
+          type: number
+          format: float
+        floorUSD:
+          description: Trait floor
+          type: number
+          format: float
+        totalSalesVolume:
+          description: Total sales volume
+          type: number
+          format: float
+        totalSalesVolumeUSD:
+          description: Total sales volume
+          type: number
+          format: float
+                
+    CollectionTrait:
+      type: object
+      required:
+        - valuationAllTime
+        - valuationAllTimeUSD
+        - valuationRecent
+        - valuationRecentUSD
+        - recentPeriodMonths
+        - totalAmountOfSales
+        - medianTTFAllTime
+        - medianTTFRecentPeriod
+        - quantity
+        - largeDistinctCount
+      properties:
+        valuationAllTime:
+          description: Trait valuation for all time
+          type: number
+          format: float
+        valuationAllTimeUSD:
+          description: Trait valuation for all time
+          type: number
+          format: float
+        valuationRecent:
+          description: Trait valuation for recent period
+          type: number
+          format: float
+        valuationRecentUSD:
+          description: Trait valuation for recent period
+          type: number
+          format: float
+        recentPeriodMonths:
+          description: Recent period of trait valuation
+          type: number
+          format: uint32
+        totalAmountOfSales:
+          description: Amount of sales
+          type: number
+          format: uint32
+        medianTTFAllTime:
+          description: Median trait to floor for all time
+          type: number
+          format: float
+        medianTTFRecentPeriod:
+          description: Median trait to floor for recent period
+          type: number
+          format: float
+        tokensCountWithTrait:
+          description: Trait quantity
+          type: number
+          format: uint32
+          example: 1
+        largeDistinctCount:
+          description: Indicates if trait is ...to be phrased 
+          type: boolean
+        floor:
+          description: Trait floor
+          type: number
+          format: float
+        floorUSD:
+          description: Trait floor
+          type: number
+          format: float
+        totalSalesVolume:
+          description: Total sales volume
+          type: number
+          format: float
+        totalSalesVolumeUSD:
+          description: Total sales volume
+          type: number
+          format: float
+                
+    CollectionTraitSale:
+      type: object
+      required:
+        - timestamp
+        - ttfValue
+        - sale
+        - floorPrice
+        - salePrice
+      properties:
+        timestamp:
+          type: number
+          format: uint64
+          description: Unix timestamp when sale happened
+        ttfValue:
+          type: number
+          format: float
+          description: TTF value
+        floor:
+          description: Trait floor
+          type: number
+          format: float
+        floorUSD:
+          description: Trait floor
+          type: number
+          format: float
+        salePrice:
+          description: Trait floor
+          type: number
+          format: float
+        salePriceUSD:
+          description: Trait floor
+          type: number
+          format: float
+    
+    # used in traits related methods
+    AmountAndCurrency:
+      type: object
+      required: 
+        - amount
+        - currency
+      properties:
+        amount:
+          type: number
+          format: float
+          example: 2.5
+        currency:
+          type: string
+          example: ETH
+                
     ErrorDetails:
       required:
         - error
