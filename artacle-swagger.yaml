@@ -14,6 +14,11 @@ info:
   version: 1.1.0
   title: Artacle Public API
 
+tags:
+  - name: Traits
+    description: Get traits information. Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value
+  
+
 paths:
 # Collections List:
   /collections:
@@ -338,20 +343,20 @@ paths:
         - name: traitName
           in: query
           required: false
-          description: Query only traits with certain name
+          description: Name of the trait
           schema:
             type: string
             example: Color
         - name: sortBy
           in: query
           required: false 
-          description: Sort result by one of criteria
+          description: Traits sorting order in response
           schema:
             type: string
             enum:
               - valuationAllTime
               - valuationRecent
-              - floor
+              - floorPrice
               - totalSalesVolume
               - totalAmountOfSales
             default: valuationAllTime
@@ -359,7 +364,7 @@ paths:
         - name: sortingDirection
           in: query
           required: false
-          description: "Sorting direction: ascending, descending"
+          description: "Sorting direction"
           schema:
             type: string
             enum:
@@ -370,7 +375,7 @@ paths:
         - name: offset
           in: query
           required: false
-          description: Results pagination
+          description: Number of records to skip for pagination
           schema:
             type: integer
             default: 0
@@ -378,7 +383,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Limit elements to fetch
+          description: Max number of records to return
           schema:
             type: integer
             example: 50
@@ -386,7 +391,7 @@ paths:
             maximum: 1000
       responses:
         '200':
-          description: Success, returns array of collection traits, its valuation and information.
+          description: Success, returns array of collection traits, their valuation and information.
           content:
             application/json:
               schema:
@@ -398,7 +403,9 @@ paths:
                     type: array
                     description: Array of Traits info
                     items:
-                      $ref: '#/components/schemas/CollectionTraits'
+                      $ref: '#/components/schemas/CollectionTrait'
+        '400':
+          $ref: "#/components/responses/BadRequestError"
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -434,17 +441,17 @@ paths:
         - name: traitName
           in: query
           required: true
-          description: Query only traits with certain name
+          description: Name of the trait
           schema:
             type: string
             example: Color
         - name: traitValue
           in: query
           required: true
-          description: Query only traits with certain value
+          description: Value of the trait
           schema:
             type: string
-            example: Color
+            example: Black
       responses:
         '200':
           description: Success, returns collection trait, its valuation and information.
@@ -457,7 +464,8 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/CollectionTrait'
-
+        '400':
+          $ref: "#/components/responses/BadRequestError"
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -493,28 +501,28 @@ paths:
         - name: traitName
           in: query
           required: true
-          description: Query only traits with certain name
+          description: Name of the trait
           schema:
             type: string
             example: Color
         - name: traitValue
           in: query
           required: true
-          description: Query only traits with certain value
+          description: Value of the trait
           schema:
             type: string
-            example: Color
+            example: Black
         - name: startTimestamp
           in: query
           required: false
-          description: Unix timestamp. Indicates start time of collected samples. Method fetches everything till endTimestamp if not specified.
+          description: Unix timestamp. Indicates start time of sales to account in TTF. Method fetches everything till endTimestamp if not specified.
           schema:
             type: number
             format: uint64
         - name: endTimestamp
           in: query
           required: false
-          description: Unix timestamp. Indicates end time of collected samples. Set to now by default.
+          description: Unix timestamp. Indicates end time of sales to account in TTF. Set to now by default.
           schema:
             type: number
             format: uint64
@@ -530,7 +538,7 @@ paths:
         - name: offset
           in: query
           required: false
-          description: Results pagination
+          description: Number of records to skip for pagination
           schema:
             type: integer
             default: 0
@@ -538,7 +546,7 @@ paths:
         - name: limit
           in: query
           required: false
-          description: Limit elements to fetch
+          description: Max number of records to return
           schema:
             type: integer
             example: 50
@@ -546,7 +554,7 @@ paths:
             maximum: 1000
       responses:
         '200':
-          description: Success, returns specific trait TTF information
+          description: Success, returns specific trait TTF information within specified time range
           content:
             application/json:
               schema:
@@ -568,16 +576,14 @@ paths:
                       medianTTF:
                         type: number
                         format: float
-                      medianTTFUSD:
-                        type: number
-                        format: float
                       sales:
                         description: Historical information array. Included if includeSales is set to 1 in request
                         type: array
                         items:
                           allOf:
                           - $ref: '#/components/schemas/CollectionTraitSale'
-
+        '400':
+          $ref: "#/components/responses/BadRequestError"
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -1194,25 +1200,33 @@ components:
               nullable: true
               example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
 
-    CollectionTraits:
+    CollectionTrait:
       type: object
       required:
+        - traitName
         - traitValue
         - valuationAllTime
         - valuationAllTimeUSD
         - valuationRecent
         - valuationRecentUSD
-        - recentPeriodMonths
-        - totalAmountOfSales
         - medianTTFAllTime
         - medianTTFRecentPeriod
-        - quantity
+        - tokensCountWithTrait
         - largeDistinctCount
+        - floorPrice
+        - floorPriceUSD
+        - recentPeriodMonths
+        - totalAmountOfSales
+        - totalSalesVolume
       properties:
+        traitName:
+          type: string
+          description: Trait name
+          example: Colors
         traitValue:
           type: string
-          description: Trait value in form of trait_name:value
-          example: Color:Red
+          description: Trait value
+          example: Black
         valuationAllTime:
           description: Trait valuation for all time
           type: number
@@ -1231,10 +1245,6 @@ components:
           format: float
         recentPeriodMonths:
           description: Recent period of trait valuation
-          type: number
-          format: uint32
-        totalAmountOfSales:
-          description: Amount of sales
           type: number
           format: uint32
         medianTTFAllTime:
@@ -1253,90 +1263,19 @@ components:
         largeDistinctCount:
           description: Indicates if trait value is insignificant
           type: boolean
-        floor:
+        floorPrice:
           description: Trait floor
           type: number
           format: float
-        floorUSD:
+        floorPriceUSD:
           description: Trait floor
           type: number
           format: float
-        totalSalesVolume:
-          description: Total sales volume
-          type: number
-          format: float
-        totalSalesVolumeUSD:
-          description: Total sales volume
-          type: number
-          format: float
-                
-    CollectionTrait:
-      type: object
-      required:
-        - valuationAllTime
-        - valuationAllTimeUSD
-        - valuationRecent
-        - valuationRecentUSD
-        - recentPeriodMonths
-        - totalAmountOfSales
-        - medianTTFAllTime
-        - medianTTFRecentPeriod
-        - quantity
-        - largeDistinctCount
-      properties:
-        valuationAllTime:
-          description: Trait valuation for all time
-          type: number
-          format: float
-        valuationAllTimeUSD:
-          description: Trait valuation for all time
-          type: number
-          format: float
-        valuationRecent:
-          description: Trait valuation for recent period
-          type: number
-          format: float
-        valuationRecentUSD:
-          description: Trait valuation for recent period
-          type: number
-          format: float
-        recentPeriodMonths:
-          description: Recent period of trait valuation
-          type: number
-          format: uint32
         totalAmountOfSales:
           description: Amount of sales
           type: number
           format: uint32
-        medianTTFAllTime:
-          description: Median trait to floor for all time
-          type: number
-          format: float
-        medianTTFRecentPeriod:
-          description: Median trait to floor for recent period
-          type: number
-          format: float
-        tokensCountWithTrait:
-          description: Trait quantity
-          type: number
-          format: uint32
-          example: 1
-        largeDistinctCount:
-          description: Indicates if trait is ...to be phrased 
-          type: boolean
-        floor:
-          description: Trait floor
-          type: number
-          format: float
-        floorUSD:
-          description: Trait floor
-          type: number
-          format: float
         totalSalesVolume:
-          description: Total sales volume
-          type: number
-          format: float
-        totalSalesVolumeUSD:
           description: Total sales volume
           type: number
           format: float
@@ -1348,7 +1287,9 @@ components:
         - ttfValue
         - sale
         - floorPrice
+        - floorPriceUSD
         - salePrice
+        - salePriceUSD
       properties:
         timestamp:
           type: number
@@ -1358,11 +1299,11 @@ components:
           type: number
           format: float
           description: TTF value
-        floor:
+        floorPrice:
           description: Trait floor
           type: number
           format: float
-        floorUSD:
+        floorPriceUSD:
           description: Trait floor
           type: number
           format: float
@@ -1374,21 +1315,6 @@ components:
           description: Trait floor
           type: number
           format: float
-    
-    # used in traits related methods
-    AmountAndCurrency:
-      type: object
-      required: 
-        - amount
-        - currency
-      properties:
-        amount:
-          type: number
-          format: float
-          example: 2.5
-        currency:
-          type: string
-          example: ETH
                 
     ErrorDetails:
       required:
