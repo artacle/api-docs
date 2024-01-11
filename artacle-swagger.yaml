@@ -15,9 +15,14 @@ info:
   title: Artacle Public API
 
 tags:
+  - name: Collections
+  - name: Rarity Ranks
+  - name: Physical Prints
+  - name: Profile
+  - name: Profiles
   - name: Traits
     description: Get traits information. Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value
-  
+
 
 paths:
 # Collections List:
