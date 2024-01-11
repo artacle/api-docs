@@ -1290,6 +1290,7 @@ components:
         - floorPriceUSD
         - salePrice
         - salePriceUSD
+        - isAccountedInTTF
       properties:
         timestamp:
           type: number
@@ -1315,6 +1316,12 @@ components:
           description: Trait floor
           type: number
           format: float
+        isAccountedInTTF:
+          description: Indicates if TTF value is accounted in computation of median TTF
+          type: number
+          enum:
+            - 0
+            - 1
                 
     ErrorDetails:
       required:
