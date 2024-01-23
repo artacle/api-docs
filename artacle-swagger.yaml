@@ -832,7 +832,7 @@ paths:
     get:
       tags:
         - Tokens
-      summary: Corporate PRO only. Get particular token valuation information. All volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
+      summary: Corporate PRO only. Get particular token valuation information. All prices by default are provided in the native collection currency (i.e. ETH for Ethereum)
       description: Returns particular token valuation
       parameters:
         - name: cid
@@ -869,7 +869,7 @@ paths:
                     type: object
                     properties:
                       tokenId:
-                        type: string
+                        type: integer
                         description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
                         example: 78000001
                       tokenName:
@@ -888,25 +888,25 @@ paths:
                         example: 102.768876
                       topTraitValuation:
                         type: number
-                        description: Token trait valuation
+                        description: The best trait component of the token valuation
                         format: float
                         example: 0.0414
                       topTraitValuationUSD:
                         type: number
-                        description: Token trait valuation in USD
+                        description: The best trait component of the token valuation in USD
                         format: float
                         example: 0.0414
                       rarityReward:
                         type: number
-                        description: Token rarity reward
+                        description: The rarity reward component of token valuation
                         format: float
                         example: 0.0414
                       rarityRewardUSD:
                         type: number
-                        description: Token rarity reward in USD
+                        description: The rarity reward component of token valuation in USD
                         format: float
                         example: 0.0414
-                      isSpecialCase:
+                      isSpecialCaseValuation:
                         type: number
                         enum:
                           - 0
@@ -945,7 +945,7 @@ paths:
     get:
       tags:
         - Tokens
-      summary: Corporate PRO only. Get collection tokens information including valuation. All volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
+      summary: Corporate PRO only. Get collection tokens information including valuation. All prices by default are provided in the native collection currency (i.e. ETH for Ethereum)
       description: Returns collection tokens information and valuation
       parameters:
         - name: cid
@@ -961,6 +961,57 @@ paths:
           description: API access key
           schema:
             type: string
+        - name: sortBy
+          in: query
+          required: false 
+          description: Tokens sorting order in response
+          schema:
+            type: string
+            enum:
+              - listPrice
+              - salePrice
+              - scoreRarity
+            default: listPrice
+            example: listPrice
+        - name: sortingDirection
+          in: query
+          required: false
+          description: "Sorting direction"
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc
+        - name: listedOnly
+          in: query
+          required: false
+          description: Get only tokens which are currently listed
+          schema:
+            type: string
+            enum:
+              - true
+              - false
+            default: false
+            example: false
+        - name: offset
+          in: query
+          required: false
+          description: Number of records to skip for pagination
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: limit
+          in: query
+          required: false
+          description: Max number of records to return
+          schema:
+            type: integer
+            example: 200
+            default: 200
+            maximum: 1000
       responses:
         '200':
           description: Success
@@ -986,7 +1037,7 @@ paths:
                         - topTraitValuationUSD
                         - rarityReward
                         - rarityRewardUSD
-                        - isSpecialCase
+                        - isSpecialCaseValuation
                         - ARank
                         - rarityRank
                         - valuationTimestamp
@@ -995,12 +1046,12 @@ paths:
                         - listingPrice
                         - listingPriceUSD
                         - listingTimestamp
-                        - isListed
                         - lastSalePrice
                         - lastSalePriceUSD
+                        - whenCreated
                       properties:
                         tokenId:
-                          type: string
+                          type: integer
                           description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
                           example: 78000001
                         tokenName:
@@ -1024,12 +1075,12 @@ paths:
                           example: 102.768876
                         topTraitValuation:
                           type: number
-                          description: Token trait valuation
+                          description: The best trait component of the token valuation
                           format: float
                           example: 0.0414
                         topTraitValuationUSD:
                           type: number
-                          description: Token trait valuation in USD
+                          description: The best trait component of the token valuation in USD
                           format: float
                           example: 0.0414
                         rarityReward:
@@ -1042,7 +1093,7 @@ paths:
                           description: Token rarity reward in USD
                           format: float
                           example: 0.0414
-                        isSpecialCase:
+                        isSpecialCaseValuation:
                           type: number
                           enum:
                             - 0
@@ -1089,13 +1140,6 @@ paths:
                           format: uint64
                           description: Unix timestamp when token is listed
                           example: 1705667581
-                        isListed:
-                          type: number
-                          enum:
-                            - 0
-                            - 1
-                          description: Indicates if token is currently listed
-                          example: 1
                         lastSalePrice:
                           type: number
                           description: Token last sale price
@@ -1106,6 +1150,11 @@ paths:
                           description: Token last sale price in USD
                           format: float
                           example: 102.768876
+                        whenCreated:
+                          type: number
+                          format: uint64
+                          description: Unix timestamp when token is minted
+                          example: 1705645332
         '400':
           $ref: "#/components/responses/BadRequestError"
         '401':
@@ -1132,6 +1181,47 @@ paths:
           description: API access key
           schema:
             type: string
+        - name: category
+          in: query
+          required: false 
+          description: Filter collections by category. Multiple parameters allowed
+          schema:
+            type: string
+          example: category=PFP&category=SuperRare
+        - name: sortBy
+          in: query
+          required: false 
+          description: Data sorting order in response. sortBy value may be set to any of the field available in the response. Example floor or totalSales.
+          schema:
+            type: string
+        - name: sortingDirection
+          in: query
+          required: false
+          description: "Sorting direction"
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc
+        - name: offset
+          in: query
+          required: false
+          description: Number of records to skip for pagination
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: limit
+          in: query
+          required: false
+          description: Max number of records to return
+          schema:
+            type: integer
+            example: 100
+            default: 100
+            maximum: 1000
       responses:
         '200':
           description: Success
@@ -1502,7 +1592,7 @@ components:
         - rank
       properties:
         tokenId:
-          type: string
+          type: integer
           description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
           example: 78000001
         rank:
