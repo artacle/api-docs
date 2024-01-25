@@ -17,13 +17,16 @@ info:
 tags:
   - name: Collections
   - name: Rarity Ranks
-  - name: Physical Prints
-  - name: Profile
-  - name: Profiles
-  - name: Traits
+  - name: Analytics
+    description: PRO
   - name: Tokens
-  - name: Dashboard
-
+    description: PRO
+  - name: Traits
+    description: PRO
+  #  - name: Profile
+  - name: Profiles
+    description: PRO
+  - name: Physical Prints
 
 paths:
 # Collections List:
@@ -31,9 +34,9 @@ paths:
     get:
       tags:
         - Collections
-      summary: Get list of NFT collections listed on Artacle
+      summary: Get a list of NFT collections listed on Artacle
       description: |
-        Returns an array of all Artacle collections with their respective information such as Artacle slug, internal ID, etc. Pagination can be applied.
+        Returns an array of all collections listed on Artacle with their respective information such as Artacle slug, internal ID, etc. Pagination can be applied.
       parameters:
         - name: apiKey
           in: query
@@ -88,9 +91,9 @@ paths:
     get:
       tags:
         - Rarity Ranks
-      summary: Rarity Ranks for all tokens in a collection
+      summary: Get rarity ranks for all tokens in a collection
       description: |
-        Returns an array of all collection tokens with their rarity ranks. Those tokens that does not have a rank assigned will also be returned, with rank set to null. The response will indicate whether rarity was calculated for all tokens or not.
+        Returns an array of all collection's tokens with their rarity ranks. Those tokens that does not have a rank assigned will also be returned, with rank set to null. The response will indicate whether rarity was calculated for all tokens or not.
       parameters:
         - name: cid
           in: path
@@ -156,7 +159,7 @@ paths:
     get:
       tags:
         - Rarity Ranks
-      summary: Rarity Rank for collection token ID
+      summary: Get rarity rank for a specific token
       description: |
         Returns the rarity rank for a specific token. The response will indicate whether rarity was calculated for all tokens in a collection or not.
       parameters:
@@ -212,7 +215,7 @@ paths:
     get:
       tags:
         - Physical Prints
-      summary: Physical Prints for all tokens in a collection
+      summary: Get physical prints info for all tokens in a collection
       description: Returns an array of all collection tokens with their physical prints.
       parameters:
         - name: cid
@@ -279,7 +282,7 @@ paths:
     get:
       tags:
         - Physical Prints
-      summary: Physical Print for collection token ID
+      summary: Get physical print info for a token
       description: Returns the physical print information for a specific token.
       parameters:
         - name: cid
@@ -332,11 +335,11 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get collection traits information
+      summary: Get comprehensive data about collection's traits
       description: |
-        Get traits information and valuation within a specific collection. 
-        <br/><br/>Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value. 
-        <br/><br/>All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum).
+        Returns traits information and valuation within a specific collection. 
+        <br/><br/>Trait's TTF (Trait To Floor) value is derived from the ratio of a token's sale price with the trait to the collection's floor price at the sale time. Outliers are excluded, and the median is used to aggregate all TTF values for a given trait, offering a reliable estimate of the trait's value.
+        <br/><br/>All prices and volumes by default are provided in the collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -433,10 +436,10 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get particular trait information
+      summary: Get data about particular trait value
       description: |
-        Get particular trait information and valuation within a specific collection. <br/><br/>Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value. 
-        <br/><br/>All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum).
+        Returns particular trait information and valuation within a specific collection. <br/><br/>Trait's TTF (Trait To Floor) value is derived from the ratio of a token's sale price with the trait to the collection's floor price at the sale time. Outliers are excluded, and the median is used to aggregate all TTF values for a given trait, offering a reliable estimate of the trait's value.
+        <br/><br/>All prices and volumes by default are provided in the collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -495,10 +498,10 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get particular trait trait-to-floor information.
+      summary: Get TTF time series for a particular trait value
       description: |
-        Returns particular collection trait trait-to-floor information.<br/><br/>Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value. 
-        <br/><br/>All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum).
+        Returns trait-to-floor time series for a particular trait value.<br/><br/>Trait's TTF (Trait To Floor) value is derived from the ratio of a token's sale price with the trait to the collection's floor price at the sale time. Outliers are excluded, and the median is used to aggregate all TTF values for a given trait, offering a reliable estimate of the trait's value.
+        <br/><br/>All prices and volumes by default are provided in the collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -614,9 +617,9 @@ paths:
   /profile/{address}/v1:
     get:
       tags:
-        - Profile
+        - Profiles
         
-      summary: Get profile information for a specific wallet address
+      summary: Get profile data for a specific wallet address
       description: Returns attributes and parameters of a specific Ethereum address. The attributes are calculated by Artacle based on wallet’s historical behavior as described [here](https://medium.com/@artacle/who-is-who-in-the-nft-world-95138e5a6e62).
       parameters:
         - name: address
@@ -664,9 +667,9 @@ paths:
       tags:
         - Profiles
 
-      summary: Retrieve a list of profiles via a single call
+      summary: Get a list of profiles with their data via a single call
       description: |
-        Beta. Retrieve a list of profiles according to given conditions. Pagination is enabled. At least one filtering condition should be specified.
+        Returns a list of profiles according to given conditions. Pagination is enabled. At least one filtering condition should be specified.
       parameters:
         - name: apiKey
           in: query
@@ -759,7 +762,7 @@ paths:
         
       summary: Initialize a search resource for retrieving a list of profiles
       description: |
-        Beta. Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body. The created search resource will expire in a hour.
+        Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body. The created search resource will expire in a hour.
       parameters:
         - name: apiKey
           in: query
@@ -800,8 +803,8 @@ paths:
       tags:
         - Profiles
         
-      summary: Retrieve a list of profiles based on the search resource
-      description: Beta. Retrieve a list of profiles based on the previously created search resource. Pagination is enabled (make sure caching is disabled).
+      summary: Get a list of profiles with their data based on the search resource
+      description: Returns a list of profiles based on the previously created search resource. Pagination is enabled (make sure caching is disabled).
       parameters:
         - name: searchId
           in: path
@@ -838,121 +841,6 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
   #  Tokens
-  /collections/{cid}/tokens/{tid}/valuation/v1:
-    get:
-      tags:
-        - Tokens
-      summary: Returns particular token valuation
-      description: |
-        ### Corporate PRO only<br/><br/>
-        Get particular token valuation information. All prices by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      parameters:
-        - name: cid
-          in: path
-          required: true
-          description: Artacle collection ID as returned by the /collections/ endpoint
-          schema:
-            type: integer
-            example: 78
-        - name: tid
-          in: path
-          required: true
-          description: Token ID as specified in a smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
-          schema:
-            type: integer
-            example: 78000001
-        - name: apiKey
-          in: query
-          required: true
-          description: API access key
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - data
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      tokenId:
-                        type: integer
-                        description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
-                        example: 78000001
-                      tokenName:
-                        type: string
-                        description: Token name
-                        example: Floris Veilstorm
-                      AValuation:
-                        type: number
-                        description: Token A-Valuation
-                        format: float
-                        example: 0.0414
-                      AValuationUSD:
-                        type: number
-                        description: Token A-Valuation in USD
-                        format: float
-                        example: 102.768876
-                      topTraitValuation:
-                        type: number
-                        description: The best trait component of the token valuation
-                        format: float
-                        example: 0.0414
-                      topTraitValuationUSD:
-                        type: number
-                        description: The best trait component of the token valuation in USD
-                        format: float
-                        example: 0.0414
-                      rarityReward:
-                        type: number
-                        description: The rarity reward component of token valuation
-                        format: float
-                        example: 0.0414
-                      rarityRewardUSD:
-                        type: number
-                        description: The rarity reward component of token valuation in USD
-                        format: float
-                        example: 0.0414
-                      isSpecialCaseValuation:
-                        type: number
-                        enum:
-                          - 0
-                          - 1
-                        description: Indicates if tokens valuation is computed in exceptional/special way due to token market specifics
-                        example: 0
-                      ARank:
-                        type: number
-                        description: Token A-Rank
-                        format: uint32
-                        example: 4476
-                      rarityRank:
-                        type: number
-                        description: Token ratiry rank
-                        format: uint32
-                        example: 2056
-                      valuationTimestamp:
-                        type: number
-                        format: uint64
-                        description: Unix timestamp when metrics are evaluated
-                        example: 1705667581
-        '400':
-          $ref: "#/components/responses/BadRequestError"
-        '401':
-          $ref: "#/components/responses/UnauthorizedError"
-        '403':
-          $ref: "#/components/responses/ForbiddenError"
-        '404':
-          $ref: "#/components/responses/NotFoundError"
-        '429':
-          $ref: "#/components/responses/TooManyRequestsError"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-
   /collections/{cid}/tokens/v1:
     get:
       tags:
@@ -961,7 +849,7 @@ paths:
       description: |
         ### Corporate PRO only<br/><br/>
         Returns collection tokens information and valuation.
-        Get collection tokens information including valuation. All prices by default are provided in the native collection currency (i.e. ETH for Ethereum)
+        Get collection tokens information including valuation. All prices by default are provided in the collection currency (i.e. ETH for Ethereum)
       parameters:
         - name: cid
           in: path
@@ -1183,12 +1071,127 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
+  /collections/{cid}/tokens/{tid}/valuation/v1:
+    get:
+      tags:
+        - Tokens
+      summary: Returns particular token valuation
+      description: |
+        ### Corporate PRO only<br/><br/>
+        Get particular token valuation information. All prices by default are provided in the collection currency (i.e. ETH for Ethereum)
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: tid
+          in: path
+          required: true
+          description: Token ID as specified in a smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+          schema:
+            type: integer
+            example: 78000001
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      tokenId:
+                        type: integer
+                        description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+                        example: 78000001
+                      tokenName:
+                        type: string
+                        description: Token name
+                        example: Floris Veilstorm
+                      AValuation:
+                        type: number
+                        description: Token A-Valuation
+                        format: float
+                        example: 0.0414
+                      AValuationUSD:
+                        type: number
+                        description: Token A-Valuation in USD
+                        format: float
+                        example: 102.768876
+                      topTraitValuation:
+                        type: number
+                        description: The best trait component of the token valuation
+                        format: float
+                        example: 0.0414
+                      topTraitValuationUSD:
+                        type: number
+                        description: The best trait component of the token valuation in USD
+                        format: float
+                        example: 0.0414
+                      rarityReward:
+                        type: number
+                        description: The rarity reward component of token valuation
+                        format: float
+                        example: 0.0414
+                      rarityRewardUSD:
+                        type: number
+                        description: The rarity reward component of token valuation in USD
+                        format: float
+                        example: 0.0414
+                      isSpecialCaseValuation:
+                        type: number
+                        enum:
+                          - 0
+                          - 1
+                        description: Indicates if tokens valuation is computed in exceptional/special way due to token market specifics
+                        example: 0
+                      ARank:
+                        type: number
+                        description: Token A-Rank
+                        format: uint32
+                        example: 4476
+                      rarityRank:
+                        type: number
+                        description: Token ratiry rank
+                        format: uint32
+                        example: 2056
+                      valuationTimestamp:
+                        type: number
+                        format: uint64
+                        description: Unix timestamp when metrics are evaluated
+                        example: 1705667581
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
   /dashboard/v1:
     get:
       tags:
-        - Dashboard
-      summary: Get collections dashboard information
-      description: Returns collections dashboard information
+        - Analytics
+      summary: Get comprehensive analytics for each collection category
+      description: Returns collection data as a comprehensive dashboard table
       parameters:
         - name: apiKey
           in: query
@@ -1202,6 +1205,13 @@ paths:
           description: Filter collections by category. Multiple parameters allowed
           schema:
             type: string
+            enum:
+              - Genart
+              - AI art
+              - SuperRare
+              - PFP
+              - Gaming
+              - Other
           example: category=PFP&category=SuperRare
         - name: sortBy
           in: query
