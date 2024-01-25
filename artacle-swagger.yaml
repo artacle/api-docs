@@ -845,9 +845,8 @@ paths:
     get:
       tags:
         - Tokens
-      summary: Returns collection tokens information and valuation.
+      summary: Get collection tokens information and valuation.
       description: |
-        ### Corporate PRO only<br/><br/>
         Returns collection tokens information and valuation.
         Get collection tokens information including valuation. All prices by default are provided in the collection currency (i.e. ETH for Ethereum)
       parameters:
@@ -1075,10 +1074,9 @@ paths:
     get:
       tags:
         - Tokens
-      summary: Returns particular token valuation
+      summary: Get particular token valuation
       description: |
-        ### Corporate PRO only<br/><br/>
-        Get particular token valuation information. All prices by default are provided in the collection currency (i.e. ETH for Ethereum)
+        Returns particular token valuation information. All prices by default are provided in the collection currency (i.e. ETH for Ethereum)
       parameters:
         - name: cid
           in: path
