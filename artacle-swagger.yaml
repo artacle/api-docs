@@ -7,7 +7,7 @@ info:
       OpenAPI 3.0 based swagger docs for [Artacle](https://artacle.io) Public API.
       
       
-      The API base URL is [https://api.artacle.io/v1/](https://api.artacle.io/v1/). An API Key is required to use the API. Contact us via [api@artacle.io](mailto:api@artacle.io) to request one. Please describe your project in short. The API related to profiles is given to chosen partners only at the moment.
+      The API base URL is [https://api.artacle.io](https://api.artacle.io). An API Key is required to use the API. Contact us via [api@artacle.io](mailto:api@artacle.io) to request one. Please describe your project in short. The API related to profiles is given to chosen partners only at the moment.
       
       
       We ask you to indicate in your app that the data was obtained from Artacle, i.e. by providing links to the Artacle website.
@@ -28,7 +28,7 @@ tags:
 
 paths:
 # Collections List:
-  /collections:
+  /collections/v1:
     get:
       tags:
         - Collections
@@ -85,7 +85,7 @@ paths:
 
 
   # Collection Rarity
-  /collections/{cid}/rarity:
+  /collections/{cid}/rarity/v1:
     get:
       tags:
         - Rarity Ranks
@@ -152,7 +152,7 @@ paths:
           $ref: "#/components/responses/InternalServerError"
           
 # Token Rarity
-  /collections/{cid}/tokens/{tid}/rarity:
+  /collections/{cid}/tokens/{tid}/rarity/v1:
     get:
       tags:
         - Rarity Ranks
@@ -207,7 +207,7 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
   # Collection Physical Print
-  /collections/{cid}/print:
+  /collections/{cid}/print/v1:
     get:
       tags:
         - Physical Prints
@@ -274,7 +274,7 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
 # Token Physical Print
-  /collections/{cid}/tokens/{tid}/print:
+  /collections/{cid}/tokens/{tid}/print/v1:
     get:
       tags:
         - Physical Prints
@@ -603,7 +603,7 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
 # Profile
-  /profile/{address}:
+  /profile/{address}/v1:
     get:
       tags:
         - Profile
@@ -651,7 +651,7 @@ paths:
           $ref: "#/components/responses/InternalServerError"
           
 # Profiles
-  /profiles/search:
+  /profiles/search/v1:
     get:
       tags:
         - Profiles
@@ -785,7 +785,7 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
-  /profiles/search/{searchId}:  
+  /profiles/search/{searchId}/v1:  
     get:
       tags:
         - Profiles
@@ -1256,6 +1256,7 @@ paths:
                         - totalVolume
                         - athSalePrice
                         - bestOffer
+                        - liquidity
                         - minMintPrice
                         - totalMinted
                         - listedTokensPct
@@ -1361,7 +1362,7 @@ paths:
                           example: 127761.4
                         athSalePrice:
                           type: number
-                          description: TODO
+                          description: Maximum sale price for all time
                           format: float
                           example: 1080.7
                         bestOffer:
@@ -1369,6 +1370,11 @@ paths:
                           description: Collection best offer
                           format: float
                           example: 25
+                        liquidity:
+                          type: number
+                          description: Collection liquidity
+                          format: float
+                          example: 0.00212
                         minMintPrice:
                           type: number
                           description: Collection minimum mint price
@@ -1391,12 +1397,12 @@ paths:
                           example: 0.57
                         bidAskSpread:
                           type: number
-                          description: TODO
+                          description: Difference between the Floor and the Best Offer
                           format: float
                           example: 0.31
                         bidAskSpreadPct:
                           type: number
-                          description: TODO
+                          description: Difference between the Floor and the Best Offer in percent
                           format: float
                           example: 1.32
                         uniqueOwnersPct:
