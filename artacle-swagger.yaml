@@ -21,7 +21,6 @@ tags:
   - name: Profile
   - name: Profiles
   - name: Traits
-    description: Get traits information. Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value
   - name: Tokens
   - name: Dashboard
 
@@ -89,8 +88,9 @@ paths:
     get:
       tags:
         - Rarity Ranks
-      summary: Get the Rarity Ranks information for all tokens in a collection
-      description: Returns an array of all collection tokens with their rarity ranks. Those tokens that does not have a rank assigned will also be returned, with rank set to null. The response will indicate whether rarity was calculated for all tokens or not.
+      summary: Rarity Ranks for all tokens in a collection
+      description: |
+        Returns an array of all collection tokens with their rarity ranks. Those tokens that does not have a rank assigned will also be returned, with rank set to null. The response will indicate whether rarity was calculated for all tokens or not.
       parameters:
         - name: cid
           in: path
@@ -156,8 +156,9 @@ paths:
     get:
       tags:
         - Rarity Ranks
-      summary: Get the Rarity Rank information for a specific token ID within a specific collection
-      description: Returns the rarity rank for a specific token. The response will indicate whether rarity was calculated for all tokens in a collection or not.
+      summary: Rarity Rank for collection token ID
+      description: |
+        Returns the rarity rank for a specific token. The response will indicate whether rarity was calculated for all tokens in a collection or not.
       parameters:
         - name: cid
           in: path
@@ -211,7 +212,7 @@ paths:
     get:
       tags:
         - Physical Prints
-      summary: Get the Physical Prints information for all tokens in a collection
+      summary: Physical Prints for all tokens in a collection
       description: Returns an array of all collection tokens with their physical prints.
       parameters:
         - name: cid
@@ -278,7 +279,7 @@ paths:
     get:
       tags:
         - Physical Prints
-      summary: Get the Physical Print information for a specific token ID within a specific collection
+      summary: Physical Print for collection token ID
       description: Returns the physical print information for a specific token.
       parameters:
         - name: cid
@@ -331,8 +332,11 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get traits information and valuation within a specific collection. All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      description: Returns all collection traits.
+      summary: Get collection traits information
+      description: |
+        Get traits information and valuation within a specific collection. 
+        <br/><br/>Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value. 
+        <br/><br/>All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -361,13 +365,13 @@ paths:
           schema:
             type: string
             enum:
-              - valuationAllTime
-              - valuationRecent
+              - valuationTTFAllTime
+              - artacleTraitValuation
               - floorPrice
               - totalSalesVolume
               - totalAmountOfSales
-            default: valuationAllTime
-            example: valuationAllTime
+            default: artacleTraitValuation
+            example: artacleTraitValuation
         - name: sortingDirection
           in: query
           required: false
@@ -429,8 +433,10 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get particular trait information and valuation within a specific collection. All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      description: Returns particular collection trait information
+      summary: Get particular trait information
+      description: |
+        Get particular trait information and valuation within a specific collection. <br/><br/>Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value. 
+        <br/><br/>All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -489,8 +495,10 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get particular trait trait-to-floor information. all prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      description: Returns particular collection trait trait-to-floor information
+      summary: Get particular trait trait-to-floor information.
+      description: |
+        Returns particular collection trait trait-to-floor information.<br/><br/>Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value. 
+        <br/><br/>All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -656,8 +664,9 @@ paths:
       tags:
         - Profiles
 
-      summary: Beta. Retrieve a list of profiles via a single call
-      description: Retrieve a list of profiles according to given conditions. Pagination is enabled. At least one filtering condition should be specified.
+      summary: Retrieve a list of profiles via a single call
+      description: |
+        Beta. Retrieve a list of profiles according to given conditions. Pagination is enabled. At least one filtering condition should be specified.
       parameters:
         - name: apiKey
           in: query
@@ -748,8 +757,9 @@ paths:
       tags:
         - Profiles
         
-      summary: Beta. Initialize a search resource for retrieving a list of profiles
-      description: Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body. The created search resource will expire in a hour.
+      summary: Initialize a search resource for retrieving a list of profiles
+      description: |
+        Beta. Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body. The created search resource will expire in a hour.
       parameters:
         - name: apiKey
           in: query
@@ -790,8 +800,8 @@ paths:
       tags:
         - Profiles
         
-      summary: Beta. Retrieve a list of profiles based on the search resource
-      description: Retrieve a list of profiles based on the previously created search resource. Pagination is enabled (make sure caching is disabled).
+      summary: Retrieve a list of profiles based on the search resource
+      description: Beta. Retrieve a list of profiles based on the previously created search resource. Pagination is enabled (make sure caching is disabled).
       parameters:
         - name: searchId
           in: path
@@ -832,8 +842,10 @@ paths:
     get:
       tags:
         - Tokens
-      summary: Corporate PRO only. Get particular token valuation information. All prices by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      description: Returns particular token valuation
+      summary: Returns particular token valuation
+      description: |
+        ### Corporate PRO only<br/><br/>
+        Get particular token valuation information. All prices by default are provided in the native collection currency (i.e. ETH for Ethereum)
       parameters:
         - name: cid
           in: path
@@ -945,8 +957,11 @@ paths:
     get:
       tags:
         - Tokens
-      summary: Corporate PRO only. Get collection tokens information including valuation. All prices by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      description: Returns collection tokens information and valuation
+      summary: Returns collection tokens information and valuation.
+      description: |
+        ### Corporate PRO only<br/><br/>
+        Returns collection tokens information and valuation.
+        Get collection tokens information including valuation. All prices by default are provided in the native collection currency (i.e. ETH for Ethereum)
       parameters:
         - name: cid
           in: path
@@ -1943,17 +1958,15 @@ components:
       required:
         - traitName
         - traitValue
-        - valuationAllTime
-        - valuationAllTimeUSD
-        - valuationRecent
-        - valuationRecentUSD
+        - valuationTTFAllTime
+        - valuationTTFAllTimeUSD
+        - artacleTraitValuation
+        - artacleTraitValuationUSD
         - medianTTFAllTime
-        - medianTTFRecentPeriod
         - tokensCountWithTrait
         - largeDistinctCount
         - floorPrice
         - floorPriceUSD
-        - recentPeriodMonths
         - totalAmountOfSales
         - totalSalesVolume
       properties:
@@ -1965,32 +1978,24 @@ components:
           type: string
           description: Trait value
           example: Black
-        valuationAllTime:
-          description: Trait valuation for all time
+        valuationTTFAllTime:
+          description: TTF-based trait valuation considering all-time sales
           type: number
           format: float
-        valuationAllTimeUSD:
-          description: Trait valuation for all time
+        valuationTTFAllTimeUSD:
+          description: TTF-based trait valuation in USD considering all-time sales
           type: number
           format: float
-        valuationRecent:
-          description: Trait valuation for recent period
+        artacleTraitValuation:
+          description: Trait valuation by Artacle algorithm based on TTF and adjusted through in-depth market data analysis and by considering interdependencies between traits. It may not align with TTF valuation.
           type: number
           format: float
-        valuationRecentUSD:
-          description: Trait valuation for recent period
+        artacleTraitValuationUSD:
+          description: Trait valuation in USD by Artacle algorithm based on TTF and adjusted through in-depth market data analysis and by considering interdependencies between traits. It may not align with TTF valuation in USD.
           type: number
           format: float
-        recentPeriodMonths:
-          description: Recent period of trait valuation
-          type: number
-          format: uint32
         medianTTFAllTime:
           description: Median trait to floor for all time
-          type: number
-          format: float
-        medianTTFRecentPeriod:
-          description: Median trait to floor for recent period
           type: number
           format: float
         tokensCountWithTrait:
