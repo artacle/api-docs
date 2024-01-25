@@ -7,7 +7,7 @@ info:
       OpenAPI 3.0 based swagger docs for [Artacle](https://artacle.io) Public API.
       
       
-      The API base URL is [https://api.artacle.io/v1/](https://api.artacle.io/v1/). An API Key is required to use the API. Contact us via [api@artacle.io](mailto:api@artacle.io) to request one. Please describe your project in short. The API related to profiles is given to chosen partners only at the moment.
+      The API base URL is [https://api.artacle.io](https://api.artacle.io). An API Key is required to use the API. Contact us via [api@artacle.io](mailto:api@artacle.io) to request one. Please describe your project in short. The API related to profiles is given to chosen partners only at the moment.
       
       
       We ask you to indicate in your app that the data was obtained from Artacle, i.e. by providing links to the Artacle website.
@@ -17,22 +17,26 @@ info:
 tags:
   - name: Collections
   - name: Rarity Ranks
-  - name: Physical Prints
-  - name: Profile
-  - name: Profiles
+  - name: Analytics
+    description: PRO
+  - name: Tokens
+    description: PRO
   - name: Traits
-    description: Get traits information. Trait's TTF (Trait (sale) to Floor ratio) is calculated as the ratio of prices of the last sale of each token having specific trait to the collection's floor price at the moment of sale. Outliers get filtered out, median is used to provide aggregated TTF characteristic that can estimate the trait's value
-
+    description: PRO
+  #  - name: Profile
+  - name: Profiles
+    description: PRO
+  - name: Physical Prints
 
 paths:
 # Collections List:
-  /collections:
+  /collections/v1:
     get:
       tags:
         - Collections
-      summary: Get list of NFT collections listed on Artacle
+      summary: Get a list of NFT collections listed on Artacle
       description: |
-        Returns an array of all Artacle collections with their respective information such as Artacle slug, internal ID, etc. Pagination can be applied.
+        Returns an array of all collections listed on Artacle with their respective information such as Artacle slug, internal ID, etc. Pagination can be applied.
       parameters:
         - name: apiKey
           in: query
@@ -83,12 +87,13 @@ paths:
 
 
   # Collection Rarity
-  /collections/{cid}/rarity:
+  /collections/{cid}/rarity/v1:
     get:
       tags:
         - Rarity Ranks
-      summary: Get the Rarity Ranks information for all tokens in a collection
-      description: Returns an array of all collection tokens with their rarity ranks. Those tokens that does not have a rank assigned will also be returned, with rank set to null. The response will indicate whether rarity was calculated for all tokens or not.
+      summary: Get rarity ranks for all tokens in a collection
+      description: |
+        Returns an array of all collection's tokens with their rarity ranks. Those tokens that does not have a rank assigned will also be returned, with rank set to null. The response will indicate whether rarity was calculated for all tokens or not.
       parameters:
         - name: cid
           in: path
@@ -150,12 +155,13 @@ paths:
           $ref: "#/components/responses/InternalServerError"
           
 # Token Rarity
-  /collections/{cid}/tokens/{tid}/rarity:
+  /collections/{cid}/tokens/{tid}/rarity/v1:
     get:
       tags:
         - Rarity Ranks
-      summary: Get the Rarity Rank information for a specific token ID within a specific collection
-      description: Returns the rarity rank for a specific token. The response will indicate whether rarity was calculated for all tokens in a collection or not.
+      summary: Get rarity rank for a specific token
+      description: |
+        Returns the rarity rank for a specific token. The response will indicate whether rarity was calculated for all tokens in a collection or not.
       parameters:
         - name: cid
           in: path
@@ -205,11 +211,11 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
   # Collection Physical Print
-  /collections/{cid}/print:
+  /collections/{cid}/print/v1:
     get:
       tags:
         - Physical Prints
-      summary: Get the Physical Prints information for all tokens in a collection
+      summary: Get physical prints info for all tokens in a collection
       description: Returns an array of all collection tokens with their physical prints.
       parameters:
         - name: cid
@@ -272,11 +278,11 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
 # Token Physical Print
-  /collections/{cid}/tokens/{tid}/print:
+  /collections/{cid}/tokens/{tid}/print/v1:
     get:
       tags:
         - Physical Prints
-      summary: Get the Physical Print information for a specific token ID within a specific collection
+      summary: Get physical print info for a token
       description: Returns the physical print information for a specific token.
       parameters:
         - name: cid
@@ -329,8 +335,11 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get traits information and valuation within a specific collection. All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      description: Returns all collection traits.
+      summary: Get comprehensive data about collection's traits
+      description: |
+        Returns traits information and valuation within a specific collection. 
+        <br/><br/>Trait's TTF (Trait To Floor) value is derived from the ratio of a token's sale price with the trait to the collection's floor price at the sale time. Outliers are excluded, and the median is used to aggregate all TTF values for a given trait, offering a reliable estimate of the trait's value.
+        <br/><br/>All prices and volumes by default are provided in the collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -359,13 +368,13 @@ paths:
           schema:
             type: string
             enum:
-              - valuationAllTime
-              - valuationRecent
+              - valuationTTFAllTime
+              - artacleTraitValuation
               - floorPrice
               - totalSalesVolume
               - totalAmountOfSales
-            default: valuationAllTime
-            example: valuationAllTime
+            default: artacleTraitValuation
+            example: artacleTraitValuation
         - name: sortingDirection
           in: query
           required: false
@@ -427,8 +436,10 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get particular trait information and valuation within a specific collection. All prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      description: Returns particular collection trait information
+      summary: Get data about particular trait value
+      description: |
+        Returns particular trait information and valuation within a specific collection. <br/><br/>Trait's TTF (Trait To Floor) value is derived from the ratio of a token's sale price with the trait to the collection's floor price at the sale time. Outliers are excluded, and the median is used to aggregate all TTF values for a given trait, offering a reliable estimate of the trait's value.
+        <br/><br/>All prices and volumes by default are provided in the collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -487,8 +498,10 @@ paths:
     get:
       tags:
         - Traits
-      summary: Get particular trait trait-to-floor information. all prices and volumes by default are provided in the native collection currency (i.e. ETH for Ethereum)
-      description: Returns particular collection trait trait-to-floor information
+      summary: Get TTF time series for a particular trait value
+      description: |
+        Returns trait-to-floor time series for a particular trait value.<br/><br/>Trait's TTF (Trait To Floor) value is derived from the ratio of a token's sale price with the trait to the collection's floor price at the sale time. Outliers are excluded, and the median is used to aggregate all TTF values for a given trait, offering a reliable estimate of the trait's value.
+        <br/><br/>All prices and volumes by default are provided in the collection currency (i.e. ETH for Ethereum).
       parameters:
         - name: cid
           in: path
@@ -601,12 +614,12 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
 # Profile
-  /profile/{address}:
+  /profile/{address}/v1:
     get:
       tags:
-        - Profile
+        - Profiles
         
-      summary: Get profile information for a specific wallet address
+      summary: Get profile data for a specific wallet address
       description: Returns attributes and parameters of a specific Ethereum address. The attributes are calculated by Artacle based on wallet’s historical behavior as described [here](https://medium.com/@artacle/who-is-who-in-the-nft-world-95138e5a6e62).
       parameters:
         - name: address
@@ -649,13 +662,14 @@ paths:
           $ref: "#/components/responses/InternalServerError"
           
 # Profiles
-  /profiles/search:
+  /profiles/search/v1:
     get:
       tags:
         - Profiles
 
-      summary: Beta. Retrieve a list of profiles via a single call
-      description: Retrieve a list of profiles according to given conditions. Pagination is enabled. At least one filtering condition should be specified.
+      summary: Get a list of profiles with their data via a single call
+      description: |
+        Returns a list of profiles according to given conditions. Pagination is enabled. At least one filtering condition should be specified.
       parameters:
         - name: apiKey
           in: query
@@ -746,8 +760,9 @@ paths:
       tags:
         - Profiles
         
-      summary: Beta. Initialize a search resource for retrieving a list of profiles
-      description: Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body. The created search resource will expire in a hour.
+      summary: Initialize a search resource for retrieving a list of profiles
+      description: |
+        Create a search resource to retrieve a list of profiles (wallet addresses) matching the query specified in the POST body. The created search resource will expire in a hour.
       parameters:
         - name: apiKey
           in: query
@@ -783,13 +798,13 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
-  /profiles/search/{searchId}:  
+  /profiles/search/{searchId}/v1:  
     get:
       tags:
         - Profiles
         
-      summary: Beta. Retrieve a list of profiles based on the search resource
-      description: Retrieve a list of profiles based on the previously created search resource. Pagination is enabled (make sure caching is disabled).
+      summary: Get a list of profiles with their data based on the search resource
+      description: Returns a list of profiles based on the previously created search resource. Pagination is enabled (make sure caching is disabled).
       parameters:
         - name: searchId
           in: path
@@ -814,6 +829,749 @@ paths:
                 $ref: '#/components/schemas/ProfilesSearchResponse'
         '204':
           description: Search end. No more data.
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  #  Tokens
+  /collections/{cid}/tokens/v1:
+    get:
+      tags:
+        - Tokens
+      summary: Returns collection tokens information and valuation.
+      description: |
+        ### Corporate PRO only<br/><br/>
+        Returns collection tokens information and valuation.
+        Get collection tokens information including valuation. All prices by default are provided in the collection currency (i.e. ETH for Ethereum)
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          required: false 
+          description: Tokens sorting order in response
+          schema:
+            type: string
+            enum:
+              - listPrice
+              - salePrice
+              - scoreRarity
+            default: listPrice
+            example: listPrice
+        - name: sortingDirection
+          in: query
+          required: false
+          description: "Sorting direction"
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc
+        - name: listedOnly
+          in: query
+          required: false
+          description: Get only tokens which are currently listed
+          schema:
+            type: string
+            enum:
+              - true
+              - false
+            default: false
+            example: false
+        - name: offset
+          in: query
+          required: false
+          description: Number of records to skip for pagination
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: limit
+          in: query
+          required: false
+          description: Max number of records to return
+          schema:
+            type: integer
+            example: 200
+            default: 200
+            maximum: 1000
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    description: Array of tokens data
+                    items:
+                      type: object
+                      required: 
+                        - tokenId
+                        - tokenName
+                        - currentOwner
+                        - AValuation
+                        - AValuationUSD
+                        - topTraitValuation
+                        - topTraitValuationUSD
+                        - rarityReward
+                        - rarityRewardUSD
+                        - isSpecialCaseValuation
+                        - ARank
+                        - rarityRank
+                        - valuationTimestamp
+                        - mintPrice
+                        - mintPriceUSD
+                        - listingPrice
+                        - listingPriceUSD
+                        - listingTimestamp
+                        - lastSalePrice
+                        - lastSalePriceUSD
+                        - whenCreated
+                      properties:
+                        tokenId:
+                          type: integer
+                          description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+                          example: 78000001
+                        tokenName:
+                          type: string
+                          description: Token name
+                          example: Floris Veilstorm
+                        currentOwner:
+                          type: string
+                          description: Blockchain address of current token owner
+                          minLength: 42
+                          example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
+                        AValuation:
+                          type: number
+                          description: Token A-Valuation
+                          format: float
+                          example: 0.0414
+                        AValuationUSD:
+                          type: number
+                          description: Token A-Valuation in USD
+                          format: float
+                          example: 102.768876
+                        topTraitValuation:
+                          type: number
+                          description: The best trait component of the token valuation
+                          format: float
+                          example: 0.0414
+                        topTraitValuationUSD:
+                          type: number
+                          description: The best trait component of the token valuation in USD
+                          format: float
+                          example: 0.0414
+                        rarityReward:
+                          type: number
+                          description: Token rarity reward
+                          format: float
+                          example: 0.0414
+                        rarityRewardUSD:
+                          type: number
+                          description: Token rarity reward in USD
+                          format: float
+                          example: 0.0414
+                        isSpecialCaseValuation:
+                          type: number
+                          enum:
+                            - 0
+                            - 1
+                          description: Indicates if tokens valuation is computed in exceptional/special way due to token market specifics
+                          example: 0
+                        ARank:
+                          type: number
+                          description: Token A-Rank
+                          format: uint32
+                          example: 4476
+                        rarityRank:
+                          type: number
+                          description: Token ratiry rank
+                          format: uint32
+                          example: 2056
+                        valuationTimestamp:
+                          type: number
+                          format: uint64
+                          description: Unix timestamp when metrics are evaluated
+                          example: 1705667581
+                        mintPrice:
+                          type: number
+                          description: Token mint price
+                          format: float
+                          example: 0.0414
+                        mintPriceUSD:
+                          type: number
+                          description: Token mint price in USD
+                          format: float
+                          example: 102.768876
+                        listingPrice:
+                          type: number
+                          description: Token current listing price
+                          format: float
+                          example: 0.0414
+                        listingPriceUSD:
+                          type: number
+                          description: Token current listing price in USD
+                          format: float
+                          example: 102.768876
+                        listingTimestamp:
+                          type: number
+                          format: uint64
+                          description: Unix timestamp when token is listed
+                          example: 1705667581
+                        lastSalePrice:
+                          type: number
+                          description: Token last sale price
+                          format: float
+                          example: 0.0414
+                        lastSalePriceUSD:
+                          type: number
+                          description: Token last sale price in USD
+                          format: float
+                          example: 102.768876
+                        whenCreated:
+                          type: number
+                          format: uint64
+                          description: Unix timestamp when token is minted
+                          example: 1705645332
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /collections/{cid}/tokens/{tid}/valuation/v1:
+    get:
+      tags:
+        - Tokens
+      summary: Returns particular token valuation
+      description: |
+        ### Corporate PRO only<br/><br/>
+        Get particular token valuation information. All prices by default are provided in the collection currency (i.e. ETH for Ethereum)
+      parameters:
+        - name: cid
+          in: path
+          required: true
+          description: Artacle collection ID as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: tid
+          in: path
+          required: true
+          description: Token ID as specified in a smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+          schema:
+            type: integer
+            example: 78000001
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      tokenId:
+                        type: integer
+                        description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
+                        example: 78000001
+                      tokenName:
+                        type: string
+                        description: Token name
+                        example: Floris Veilstorm
+                      AValuation:
+                        type: number
+                        description: Token A-Valuation
+                        format: float
+                        example: 0.0414
+                      AValuationUSD:
+                        type: number
+                        description: Token A-Valuation in USD
+                        format: float
+                        example: 102.768876
+                      topTraitValuation:
+                        type: number
+                        description: The best trait component of the token valuation
+                        format: float
+                        example: 0.0414
+                      topTraitValuationUSD:
+                        type: number
+                        description: The best trait component of the token valuation in USD
+                        format: float
+                        example: 0.0414
+                      rarityReward:
+                        type: number
+                        description: The rarity reward component of token valuation
+                        format: float
+                        example: 0.0414
+                      rarityRewardUSD:
+                        type: number
+                        description: The rarity reward component of token valuation in USD
+                        format: float
+                        example: 0.0414
+                      isSpecialCaseValuation:
+                        type: number
+                        enum:
+                          - 0
+                          - 1
+                        description: Indicates if tokens valuation is computed in exceptional/special way due to token market specifics
+                        example: 0
+                      ARank:
+                        type: number
+                        description: Token A-Rank
+                        format: uint32
+                        example: 4476
+                      rarityRank:
+                        type: number
+                        description: Token ratiry rank
+                        format: uint32
+                        example: 2056
+                      valuationTimestamp:
+                        type: number
+                        format: uint64
+                        description: Unix timestamp when metrics are evaluated
+                        example: 1705667581
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /dashboard/v1:
+    get:
+      tags:
+        - Analytics
+      summary: Get comprehensive analytics for each collection category
+      description: Returns collection data as a comprehensive dashboard table
+      parameters:
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false 
+          description: Filter collections by category. Multiple parameters allowed
+          schema:
+            type: string
+            enum:
+              - Genart
+              - AI art
+              - SuperRare
+              - PFP
+              - Gaming
+              - Other
+          example: category=PFP&category=SuperRare
+        - name: sortBy
+          in: query
+          required: false 
+          description: Data sorting order in response. sortBy value may be set to any of the field available in the response. Example floor or totalSales.
+          schema:
+            type: string
+        - name: sortingDirection
+          in: query
+          required: false
+          description: "Sorting direction"
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc
+        - name: offset
+          in: query
+          required: false
+          description: Number of records to skip for pagination
+          schema:
+            type: integer
+            default: 0
+            example: 0
+        - name: limit
+          in: query
+          required: false
+          description: Max number of records to return
+          schema:
+            type: integer
+            example: 100
+            default: 100
+            maximum: 1000
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    description: Array of collections data
+                    items:
+                      type: object
+                      required: 
+                        - collectionName
+                        - artist
+                        - category
+                        - platform
+                        - allTags
+                        - description
+                        - mintingDetails
+                        - artacleLink
+                        - collectionStartDate
+                        - collectionState
+                        - floor
+                        - marketCap
+                        - costBasis
+                        - listedAmount
+                        - totalSales
+                        - totalVolume
+                        - athSalePrice
+                        - bestOffer
+                        - liquidity
+                        - minMintPrice
+                        - totalMinted
+                        - listedTokensPct
+                        - profitMultiple
+                        - bidAskSpread
+                        - bidAskSpreadPct
+                        - uniqueOwnersPct
+                        - floor24HDeltaPct
+                        - marketCap24HDeltaPct
+                        - costBasis24HDeltaPct
+                        - volume24HDeltaPct
+                        - liquidity24HDeltaPct
+                        - numberOfSales24H
+                        - volume24H
+                        - avgPrice24H
+                        - maxSalePrice24H
+                        - floor7DDeltaPct
+                        - marketCap7DDeltaPct
+                        - costBasis7DDeltaPct
+                        - volume7DDeltaPct
+                        - liquidity7DDeltaPct
+                        - numberOfSales7D
+                        - volume7D
+                        - avgPrice7D
+                        - maxSalePrice7D
+                        - floor30DDeltaPct
+                        - marketCap30DDeltaPct
+                        - costBasis30DDeltaPct
+                        - volume30DDeltaPct
+                        - liquidity30DDeltaPct
+                        - numberOfSales30D
+                        - volume30D
+                        - avgPrice30D
+                        - maxSalePrice30D
+                      properties:
+                        collectionName:
+                          type: string
+                          description: Collection name
+                          example: Bored Ape Yacht Club
+                        artist:
+                          type: string
+                          description: Collection artist
+                          example: Yuga Labs
+                        category:
+                          type: string
+                          description: Collection category
+                          example: PFP
+                        platform:
+                          type: string
+                          description: Collection tags, comma separated
+                          example: PFP,Yuga Labs
+                        allTags:
+                          type: string
+                          description: Collection description
+                        description:
+                          type: string
+                          description: Collection artist
+                          example: Bored Ape Yacht Club
+                        mintingDetails:
+                          type: string
+                          description: Information about minting price, auction details, etc
+                        artacleLink:
+                          type: string
+                          description: Collection URL in Artacle
+                          example: https://artacle.io/project/bored-ape-yacht-club
+                        collectionStartDate:
+                          type: string
+                          description: Collection start date in YYYY-MM-DD format
+                          example: "2021-04-23"
+                        collectionState:
+                          type: string
+                          description: Collection mint state
+                          example: Minted out
+                        floor:
+                          type: number
+                          description: Collection floor
+                          format: float
+                          example: 23.7
+                        marketCap:
+                          type: number
+                          description: Collection market cap
+                          format: float
+                          example: 253500
+                        costBasis:
+                          type: number
+                          description: Collection cost basis
+                          format: float
+                          example: 442649.4
+                        listedAmount:
+                          type: number
+                          description: Amount of currently listed tokens in collection
+                          format: uint32
+                          example: 44
+                        totalSales:
+                          type: number
+                          description: Amount of tokens sold in collection
+                          format: uint32
+                          example: 254
+                        totalVolume:
+                          type: number
+                          description: Collection total volume
+                          format: float
+                          example: 127761.4
+                        athSalePrice:
+                          type: number
+                          description: Maximum sale price for all time
+                          format: float
+                          example: 1080.7
+                        bestOffer:
+                          type: number
+                          description: Collection best offer
+                          format: float
+                          example: 25
+                        liquidity:
+                          type: number
+                          description: Collection liquidity
+                          format: float
+                          example: 0.00212
+                        minMintPrice:
+                          type: number
+                          description: Collection minimum mint price
+                          format: float
+                          example: 0.08
+                        totalMinted:
+                          type: number
+                          description: Collection total minted tokens
+                          format: uint32
+                          example: 1000
+                        listedTokensPct:
+                          type: number
+                          description: Percentage of currently listed tokens in collection
+                          format: float
+                          example: 5
+                        profitMultiple:
+                          type: number
+                          description: Profit multiple
+                          format: float
+                          example: 0.57
+                        bidAskSpread:
+                          type: number
+                          description: Difference between the Floor and the Best Offer
+                          format: float
+                          example: 0.31
+                        bidAskSpreadPct:
+                          type: number
+                          description: Difference between the Floor and the Best Offer in percent
+                          format: float
+                          example: 1.32
+                        uniqueOwnersPct:
+                          type: number
+                          description: Percentage of unique owners in collection
+                          format: float
+                          example: 43
+                        floor24HDeltaPct:
+                          type: number
+                          description: Collection floor delta percentage for last 24H
+                          format: float
+                          example: 3.7
+                        marketCap24HDeltaPct:
+                          type: number
+                          description: Collection market cap delta percentage for last 24H
+                          format: float
+                          example: 3.7
+                        costBasis24HDeltaPct:
+                          type: number
+                          description: Collection cost basis delta percentage for last 24H
+                          format: float
+                          example: 0
+                        volume24HDeltaPct:
+                          type: number
+                          description: Collection volume delta percentage for last 24H
+                          format: float
+                          example: 110
+                        liquidity24HDeltaPct:
+                          type: number
+                          description: Collection liquidity delta percentage for last 24H
+                          format: float
+                          example: 1.13
+                        numberOfSales24H:
+                          type: number
+                          description: Number of tokens sold in collection for last 24H
+                          format: uint32
+                          example: 6
+                        volume24H:
+                          type: number
+                          description: Collection volume for last 24H
+                          format: float
+                          example: 76.4
+                        avgPrice24H:
+                          type: number
+                          description: Average price of token sold in collection for last 24H
+                          format: float
+                          example: 12
+                        maxSalePrice24H:
+                          type: number
+                          description: Maximum price of token sold in collection for last 24H
+                          format: float
+                          example: 15
+                        floor7DDeltaPct:
+                          type: number
+                          description: Collection floor delta percentage for last 7D
+                          format: float
+                          example: 4.32
+                        marketCap7DDeltaPct:
+                          type: number
+                          description: Collection market cap delta percentage for last 7D
+                          format: float
+                          example: 4.32
+                        costBasis7DDeltaPct:
+                          type: number
+                          description: Collection cost basis delta percentage for last 7D
+                          format: float
+                          example: 0
+                        volume7DDeltaPct:
+                          type: number
+                          description: Collection volume delta percentage for last 7D
+                          format: float
+                          example: 200.7
+                        liquidity7DDeltaPct:
+                          type: number
+                          description: Collection liquidity delta percentage for last 7D
+                          format: float
+                          example: 9.86
+                        numberOfSales7D:
+                          type: number
+                          description: Number of tokens sold in collection for last 7D
+                          format: uint32
+                          example: 178
+                        volume7D:
+                          type: number
+                          description: Collection volume for last 7D
+                          format: float
+                          example: 4408.1
+                        avgPrice7D:
+                          type: number
+                          description: Average price of token sold in collection for last 7D
+                          format: float
+                          example: 24.8
+                        maxSalePrice7D:
+                          type: number
+                          description: Maximum price of token sold in collection for last 7D
+                          format: float
+                          example: 30
+                        floor30DDeltaPct:
+                          type: number
+                          description: Collection floor delta percentage for last 30D
+                          format: float
+                          example: -3
+                        marketCap30DDeltaPct:
+                          type: number
+                          description: Collection market cap delta percentage for last 30D
+                          format: float
+                          example: -3
+                        costBasis30DDeltaPct:
+                          type: number
+                          description: Collection cost basis delta percentage for last 30D
+                          format: float
+                          example: -1
+                        volume30DDeltaPct:
+                          type: number
+                          description: Collection volume delta percentage for last 30D
+                          format: float
+                          example: -10
+                        liquidity30DDeltaPct:
+                          type: number
+                          description: Collection liquidity delta percentage for last 30D
+                          format: float
+                          example: -1
+                        numberOfSales30D:
+                          type: number
+                          description: Number of tokens sold in collection for last 30D
+                          format: float
+                          example: 624
+                        volume30D:
+                          type: number
+                          description: Collection volume for last 30D
+                          format: float
+                          example: 15776.2
+                        avgPrice30D:
+                          type: number
+                          description: Average price of token sold in collection for last 30D
+                          format: float
+                          example: 25.3
+                        maxSalePrice30D:
+                          type: number
+                          description: Maximum price of token sold in collection for last 30D
+                          format: float
+                          example: 57
+        '400':
+          $ref: "#/components/responses/BadRequestError"
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -865,7 +1623,7 @@ components:
         - rank
       properties:
         tokenId:
-          type: string
+          type: integer
           description: Token ID as per smart contract (for example, 1 for Bored Apes Yacht Club or 78000001 for Art Blocks Fidenza)
           example: 78000001
         rank:
@@ -1210,17 +1968,15 @@ components:
       required:
         - traitName
         - traitValue
-        - valuationAllTime
-        - valuationAllTimeUSD
-        - valuationRecent
-        - valuationRecentUSD
+        - valuationTTFAllTime
+        - valuationTTFAllTimeUSD
+        - artacleTraitValuation
+        - artacleTraitValuationUSD
         - medianTTFAllTime
-        - medianTTFRecentPeriod
         - tokensCountWithTrait
         - largeDistinctCount
         - floorPrice
         - floorPriceUSD
-        - recentPeriodMonths
         - totalAmountOfSales
         - totalSalesVolume
       properties:
@@ -1232,32 +1988,24 @@ components:
           type: string
           description: Trait value
           example: Black
-        valuationAllTime:
-          description: Trait valuation for all time
+        valuationTTFAllTime:
+          description: TTF-based trait valuation considering all-time sales
           type: number
           format: float
-        valuationAllTimeUSD:
-          description: Trait valuation for all time
+        valuationTTFAllTimeUSD:
+          description: TTF-based trait valuation in USD considering all-time sales
           type: number
           format: float
-        valuationRecent:
-          description: Trait valuation for recent period
+        artacleTraitValuation:
+          description: Trait valuation by Artacle algorithm based on TTF and adjusted through in-depth market data analysis and by considering interdependencies between traits. It may not align with TTF valuation.
           type: number
           format: float
-        valuationRecentUSD:
-          description: Trait valuation for recent period
+        artacleTraitValuationUSD:
+          description: Trait valuation in USD by Artacle algorithm based on TTF and adjusted through in-depth market data analysis and by considering interdependencies between traits. It may not align with TTF valuation in USD.
           type: number
           format: float
-        recentPeriodMonths:
-          description: Recent period of trait valuation
-          type: number
-          format: uint32
         medianTTFAllTime:
           description: Median trait to floor for all time
-          type: number
-          format: float
-        medianTTFRecentPeriod:
-          description: Median trait to floor for recent period
           type: number
           format: float
         tokensCountWithTrait:
