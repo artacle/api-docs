@@ -1211,6 +1211,18 @@ paths:
               - Gaming
               - Other
           example: category=PFP&category=SuperRare
+        - name: collectionName
+          in: query
+          required: false 
+          description: Filter collections by name pattern using fuzzy search algorithm. At least 3 characters should be specified.
+          schema:
+            type: string
+        - name: artist
+          in: query
+          required: false 
+          description: Filter collections by artist pattern using fuzzy search algorithm. At least 3 characters should be specified.
+          schema:
+            type: string
         - name: sortBy
           in: query
           required: false 
