@@ -649,7 +649,166 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: '#/components/schemas/ProfileInfo'
+                    allOf:
+                      - $ref: '#/components/schemas/ProfileInfo'
+                      - type: object
+                        required:
+                          - walletValueETH
+                          - walletValueUSD        
+                          - walletCostBasisETH
+                          - walletCostBasisUSD
+                          - tokensAmount
+                          - collectionList                          
+                          - mostExpensiveTokens
+                          - bestBuyTokens
+                          - recentSales
+                          - recentPurchases
+                        properties:
+                          walletValueETH:
+                            type: number
+                            format: float
+                            description: The current valuation in ETH of all NFT, whose owner is the wallet, and their collections are listed on Artacle.
+                            nullable: false
+                            example: 0.2394
+                          walletValueUSD:
+                            type: number
+                            format: float
+                            description: The current valuation in USD of all NFT, whose owner is the wallet, and their collections are listed on Artacle.
+                            nullable: false
+                            example: 562.38
+                          walletCostBasisETH:
+                            type: number
+                            format: float
+                            description: The current cost basis in ETH of all NFT, whose owner is the wallet, and their collections are listed on Artacle.
+                            nullable: false
+                            example: 0.95632
+                          walletCostBasisUSD:
+                            type: number
+                            format: float
+                            description: The current cost basis in USD of all NFT, whose owner is the wallet, and their collections are listed on Artacle.
+                            nullable: false
+                            example: 3227.64
+                          tokensAmount:
+                            type: integer
+                            format: int32
+                            description: The current count of NFT, whose owner is the wallet, and their collections are listed on Artacle.
+                            nullable: false
+                            example: 25
+                          collectionList:  
+                            type: array
+                            description: The array of collections listed on Artacle where the wallet has at least one token
+                            nullable: true
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  format: int32
+                                  description: Artacle collection ID
+                                  nullable: false
+                                  example: 78
+                                name:
+                                  type: string
+                                  description: Collection name
+                                  nullable: false
+                                  example: "Fidenza"
+                          mostExpensiveTokens:
+                            type: array
+                            description: The top-10 list of NFTs (whose owner is the wallet) arranged by Artacle valuation in ETH.
+                            maxItems: 10
+                            items:
+                              allOf:
+                                - $ref: '#/components/schemas/TokenInfo'
+                                - type: object
+                                  properties:
+                                    valueETH:
+                                      type: number
+                                      format: float
+                                      description: Artacle value of the NFT in ETH
+                                      nullable: false
+                                      example: 0.054172
+                          bestBuyTokens:
+                            type: array
+                            description: The top-10 list of NFTs (whose owner is the wallet) arranged by expected profit in ETH.
+                            maxItems: 10
+                            items:
+                              allOf:
+                                - $ref: '#/components/schemas/TokenInfo'
+                                - type: object
+                                  properties:
+                                    expectedProfitETH:
+                                      type: number
+                                      format: float
+                                      description: Artacle expected profit for NFT in ETH
+                                      nullable: false
+                                      example: 0.039365
+                          recentSales:
+                            type: array
+                            description: The 10 recent sales of NFTs (whose owner was the wallet).
+                            maxItems: 10
+                            items:
+                              allOf:
+                                - $ref: '#/components/schemas/TokenInfo'
+                                - type: object
+                                  properties:
+                                    priceETH:
+                                      type: number
+                                      format: float
+                                      description: NFT sale price in ETH
+                                      nullable: false
+                                      example: 0.02
+                                    priceUSD:
+                                      type: number
+                                      format: float
+                                      description: NFT sale price in USD
+                                      nullable: false
+                                      example: 35.57
+                                    timestamp:
+                                      type: string
+                                      format: date-time
+                                      description: Timestamp of the sale
+                                      nullable: false
+                                      example: "2023-10-24T17:51:35.000Z"
+                          recentPurchases:
+                            type: array
+                            description: The 10 recent purchases of NFTs (whose owner became the wallet).
+                            maxItems: 10
+                            items:
+                              allOf:
+                                - $ref: '#/components/schemas/TokenInfo'
+                                - type: object
+                                  properties:
+                                    priceETH:
+                                      type: number
+                                      format: float
+                                      description: NFT purchase price in ETH
+                                      nullable: false
+                                      example: 0.0255
+                                    priceUSD:
+                                      type: number
+                                      format: float
+                                      description: NFT purchase price in USD
+                                      nullable: false
+                                      example: 36.43
+                                    PnLETH:
+                                      type: number
+                                      format: float
+                                      description: NFT purchase profit and loss in ETH
+                                      nullable: false
+                                      example: 0.0097
+                                    PnLUSD:
+                                      type: number
+                                      format: float
+                                      description: NFT purchase profit and loss in USD
+                                      nullable: false
+                                      example: 13.95
+                                    timestamp:
+                                      type: string
+                                      format: date-time
+                                      description: Timestamp of the purchase
+                                      nullable: false
+                                      example: "2022-09-16T18:54:47.000Z"                                       
+                      
         '401':
           $ref: "#/components/responses/UnauthorizedError"
         '403':
@@ -1626,6 +1785,45 @@ components:
           maxLength: 42
           pattern: ^0x[a-f0-9]{40}$
           example: "0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270"
+
+    TokenInfo:
+      type: object
+      required:
+        - collectionId
+        - collectionName
+        - tokenId
+        - artacleRank
+        - rarityRank
+      properties:
+        collectionId:
+          type: integer
+          format: int32
+          description: Artacle collection ID
+          nullable: false
+          example: 472
+        collectionName:
+          type: string
+          description: Name of the collection
+          nullable: false
+          example: "because unless until"
+        tokenId:
+          type: string
+          description: Unique identifier of the NFT in collection
+          nullable: false
+          example: "472000560"
+        artacleRank:
+          type: integer
+          format: int32
+          description: Token Artacle rank
+          nullable: false
+          example: 34
+        rarityRank:
+          type: integer
+          format: int32
+          description: Token rarity rank
+          nullable: false
+          example: 87
+          
     TokenRarity:
       type: object
       required:
