@@ -836,6 +836,260 @@ paths:
           $ref: "#/components/responses/TooManyRequestsError"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
+# Profile Tokens
+  /profile/{address}/tokens/v1:
+    get:
+      tags:
+        - Profiles
+      summary: Get NFT tokens owned by a wallet with valuation metrics
+      description: |
+        Returns a paginated list of NFT tokens owned by the specified Ethereum wallet address,
+        including Artacle's proprietary valuation metrics: AValuation, topTraitValuation, rarityReward, etc.
+        Only tokens from Ethereum-based collections are returned.
+        <br/><br/>
+        Supports filtering by collection, sorting by valuation metrics, and optional historical valuation on a specific date.
+      parameters:
+        - name: address
+          in: path
+          required: true
+          description: Ethereum wallet address (42 characters, lowercase hex)
+          schema:
+            type: string
+            minLength: 42
+            maxLength: 42
+            pattern: ^0x[a-fA-F0-9]{40}$
+            example: "0x9df947cd8a9810964473339c38a95201ecbe112d"
+        - name: apiKey
+          in: query
+          required: true
+          description: API access key
+          schema:
+            type: string
+        - name: collectionId
+          in: query
+          required: false
+          description: Filter tokens by Artacle collection ID (internal ID) as returned by the /collections/ endpoint
+          schema:
+            type: integer
+            example: 78
+        - name: sortBy
+          in: query
+          required: false
+          description: Tokens sorting order in response
+          schema:
+            type: string
+            enum:
+              - listingPrice
+              - AValuation
+              - topTraitValuation
+            default: listingPrice
+            example: AValuation
+        - name: sortingDirection
+          in: query
+          required: false
+          description: Sorting direction
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            example: desc
+        - name: limit
+          in: query
+          required: false
+          description: Max number of tokens to return
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 200
+            example: 50
+        - name: offset
+          in: query
+          required: false
+          description: Number of tokens to skip for pagination
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+            example: 0
+        - name: includeAValuationOnDate
+          in: query
+          required: false
+          description: |
+            Include historical AValuation for a specific date. Must be in YYYY-MM-DD format.
+            Returns `AValuationOnDate`, `AValuationUSDOnDate` and `onDate` fields for each token.
+          schema:
+            type: string
+            format: date
+            example: "2024-12-31"
+      responses:
+        '200':
+          description: Success, returns list of tokens with valuation metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    description: Array of token records with valuation metrics
+                    items:
+                      type: object
+                      required:
+                        - collectionId
+                        - tokenId
+                        - tokenName
+                        - AValuation
+                        - AValuationUSD
+                        - topTraitValuation
+                        - topTraitValuationUSD
+                        - rarityReward
+                        - rarityRewardUSD
+                        - isSpecialCaseValuation
+                        - ARank
+                        - rarityRank
+                        - valuationTimestamp
+                        - mintPrice
+                        - listingPrice
+                        - listingPriceUSD
+                        - listingTimestamp
+                        - lastSalePrice
+                        - lastSalePriceUSD
+                        - whenCreated
+                      properties:
+                        collectionId:
+                          type: integer
+                          description: Artacle collection ID
+                          example: 78
+                        tokenId:
+                          type: integer
+                          description: Token ID as per smart contract (e.g., 1 for Bored Ape #1)
+                          example: 78000001
+                        tokenName:
+                          type: string
+                          description: Human-readable name of the token
+                          example: "Floris Veilstorm"
+                        AValuation:
+                          type: number
+                          format: float
+                          description: Artacle's comprehensive token valuation in ETH
+                          example: 0.0414
+                        AValuationUSD:
+                          type: number
+                          format: float
+                          description: Artacle's comprehensive token valuation in USD
+                          example: 102.77
+                        topTraitValuation:
+                          type: number
+                          format: float
+                          description: Valuation based on the most valuable trait combination in ETH
+                          example: 0.0414
+                        topTraitValuationUSD:
+                          type: number
+                          format: float
+                          description: Valuation based on the most valuable trait combination in USD
+                          example: 102.77
+                        rarityReward:
+                          type: number
+                          format: float
+                          description: Rarity-based reward component in ETH
+                          example: 0.005
+                        rarityRewardUSD:
+                          type: number
+                          format: float
+                          description: Rarity-based reward component in USD
+                          example: 12.45
+                        isSpecialCaseValuation:
+                          type: integer
+                          enum: [0, 1]
+                          description: Indicates if token valuation uses a special algorithm (e.g., for unique collections)
+                          example: 0
+                        ARank:
+                          type: integer
+                          format: int32
+                          description: Artacle rank of the token (lower = higher rank). Null if only 1 token in collection.
+                          example: 4476
+                        rarityRank:
+                          type: integer
+                          format: int32
+                          description: Rarity rank of the token (lower = rarer)
+                          example: 2056
+                        valuationTimestamp:
+                          type: integer
+                          format: int64
+                          description: Unix timestamp when metrics were last calculated
+                          example: 1705667581
+                        mintPrice:
+                          type: number
+                          format: float
+                          description: Original mint price in ETH
+                          example: 0.02
+                        listingPrice:
+                          type: number
+                          format: float
+                          description: Current listing price in ETH
+                          example: 0.0414
+                        listingPriceUSD:
+                          type: number
+                          format: float
+                          description: Current listing price in USD
+                          example: 102.77
+                        listingTimestamp:
+                          type: integer
+                          format: int64
+                          description: Unix timestamp when token was last listed
+                          example: 1705667581
+                        lastSalePrice:
+                          type: number
+                          format: float
+                          description: Last sale price in ETH
+                          example: 0.05
+                        lastSalePriceUSD:
+                          type: number
+                          format: float
+                          description: Last sale price in USD
+                          example: 124.5
+                        whenCreated:
+                          type: integer
+                          format: int64
+                          description: Unix timestamp when token was minted
+                          example: 1705645332
+                        AValuationOnDate:
+                          type: number
+                          format: float
+                          description: Historical AValuation on the specified date (only if includeAValuationOnDate is provided)
+                          nullable: true
+                          example: 0.038
+                        AValuationUSDOnDate:
+                          type: number
+                          format: float
+                          description: Historical AValuation in USD on the specified date (only if includeAValuationOnDate is provided)
+                          nullable: true
+                          example: 94.2
+                        onDate:
+                          type: string
+                          format: date
+                          description: The date provided in includeAValuationOnDate (only if provided)
+                          nullable: true
+                          example: "2024-12-31"
+        '400':
+          $ref: "#/components/responses/BadRequestError"
+        '401':
+          $ref: "#/components/responses/UnauthorizedError"
+        '403':
+          $ref: "#/components/responses/ForbiddenError"
+        '404':
+          $ref: "#/components/responses/NotFoundError"
+        '429':
+          $ref: "#/components/responses/TooManyRequestsError"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
           
 # Profiles
   /profiles/search/v1:
