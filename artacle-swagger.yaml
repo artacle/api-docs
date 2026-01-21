@@ -919,7 +919,7 @@ paths:
           in: query
           required: false
           description: |
-            Include historical AValuation for a specific date. Must be in YYYY-MM-DD format.
+            Include historical AValuation as of the end of the specified calendar date in UTC. Must be in YYYY-MM-DD format.
             Returns `AValuationOnDate`, `AValuationUSDOnDate` and `onDate` fields for each token.
           schema:
             type: string
